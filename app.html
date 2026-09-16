@@ -24,7 +24,7 @@
 
   <!-- Top Navigation Header -->
   <header class="app-header" id="app-header">
-    <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <div class="app-header-brand-group">
       <a href="index.html" class="brand-wrapper" title="Back to Certify Homepage">
         <img src="assets/logo.png" alt="Certify Logo" class="brand-logo-img">
       </a>
@@ -38,6 +38,12 @@
           aria-label="Certificate Project Name"
           title="Click to rename certificate project"
         >
+        <span class="project-title-rename-hint-group" id="project-rename-hint-group" style="display: none;">
+          <button type="button" class="project-title-rename-hint" id="project-rename-hint" title="Click to rename certificate project">
+            Rename?
+          </button>
+          <button type="button" class="project-title-rename-dismiss" id="btn-dismiss-rename-hint" title="Dismiss rename hint" aria-label="Dismiss">&times;</button>
+        </span>
       </div>
     </div>
 

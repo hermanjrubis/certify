@@ -8,6 +8,7 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .home-page-wrapper {
@@ -15,6 +16,7 @@
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .home-container {
@@ -402,6 +404,20 @@
   .hero-headline {
     font-size: 2.375rem;
   }
+  .hero-visual {
+    width: 100%;
+    margin-top: 2.5rem;
+    perspective: none;
+  }
+  .tilted-cert-card {
+    transform: none;
+    max-width: 460px;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 10px 28px rgba(31, 42, 27, 0.08);
+  }
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
     padding: 1rem 0 3rem;
@@ -479,7 +495,7 @@
   }
 
   .hero-headline {
-    font-size: 2rem;
+    font-size: 1.875rem;
   }
 
   .home-container {
@@ -488,5 +504,19 @@
 
   .home-nav-links {
     padding: 1rem 1.25rem 1.5rem;
+  }
+
+  .tilted-cert-card {
+    max-width: 100%;
+    padding: 1.25rem 0.875rem;
+    min-height: 190px;
+  }
+
+  .cert-mock-name {
+    font-size: 1.875rem;
+  }
+
+  .cert-mock-textbox {
+    padding: 0.5rem 1rem;
   }
 }

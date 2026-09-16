@@ -4,14 +4,25 @@
 .app-header {
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-hairline);
-  height: 4.125rem;
+  min-height: 4.125rem;
+  height: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.75rem;
+  padding: 0.625rem 1.75rem;
+  gap: 0.75rem 1.25rem;
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.app-header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .brand-wrapper {
@@ -19,6 +30,7 @@
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .brand-logo-img {
@@ -57,6 +69,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .project-title-input {
@@ -68,7 +82,10 @@
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: 0.35rem 0.6rem;
-  width: 240px;
+  width: 220px;
+  max-width: 100%;
+  min-width: 90px;
+  flex: 0 1 auto;
   transition: all var(--transition-fast);
 }
 
@@ -83,10 +100,71 @@
   outline: none;
 }
 
+.project-title-rename-hint-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--mint-tint);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.45rem 0.15rem 0.55rem;
+  animation: renameHintFadeIn 0.25s ease-out;
+  flex-shrink: 0;
+}
+
+@keyframes renameHintFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.project-title-rename-hint {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-on-mint);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.project-title-rename-hint:hover {
+  text-decoration: underline;
+}
+
+.project-title-rename-dismiss {
+  background: none;
+  border: none;
+  padding: 0 0.15rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.project-title-rename-dismiss:hover {
+  color: var(--text-primary);
+}
+
 .app-header-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* App Main Container */
@@ -1136,5 +1214,69 @@
 @media (max-width: 1080px) {
   .editor-workbench-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0.625rem 1rem;
+    gap: 0.625rem;
+  }
+
+  .app-header-brand-group {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .project-title-wrapper {
+    justify-content: flex-end;
+  }
+
+  .project-title-input {
+    width: 160px;
+    font-size: 0.9375rem;
+    text-align: right;
+  }
+
+  .app-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.375rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .app-header-actions .btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8125rem;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+
+  .app-header-actions .svg-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo-img {
+    height: 36px;
+    max-height: 36px;
+  }
+
+  .project-title-input {
+    width: 130px;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .project-title-rename-hint-group {
+    padding: 0.1rem 0.35rem 0.1rem 0.45rem;
+  }
+
+  .project-title-rename-hint {
+    font-size: 0.7rem;
   }
 }

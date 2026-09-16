@@ -17,6 +17,7 @@ class CertifyApp {
   constructor() {
     this.state = {
       title: 'Graduation batch 2026',
+      hasCustomTitle: false,
       template: null, // { dataUrl, width, height, imageElement, fileName }
       textField: {
         xPct: 20,
@@ -55,6 +56,9 @@ class CertifyApp {
     this.viewPreview = document.querySelector('#view-preview');
 
     this.projectTitleInput = document.querySelector('#project-title-input');
+    this.projectRenameHintGroup = document.querySelector('#project-rename-hint-group');
+    this.projectRenameHint = document.querySelector('#project-rename-hint');
+    this.btnDismissRenameHint = document.querySelector('#btn-dismiss-rename-hint');
     this.btnNewProject = document.querySelector('#btn-new-project');
     this.btnTogglePreview = document.querySelector('#btn-toggle-preview');
     this.btnSaveProject = document.querySelector('#btn-save-project');
@@ -85,12 +89,46 @@ class CertifyApp {
     });
   }
 
+  showRenameHint() {
+    if (this.projectRenameHintGroup && !this.state.hasCustomTitle) {
+      this.projectRenameHintGroup.style.display = 'inline-flex';
+    }
+  }
+
+  hideRenameHint() {
+    if (this.projectRenameHintGroup) {
+      this.projectRenameHintGroup.style.display = 'none';
+    }
+  }
+
   bindGlobalEvents() {
     // Project title change
     if (this.projectTitleInput) {
       this.projectTitleInput.addEventListener('input', (e) => {
         this.state.title = e.target.value;
+        this.state.hasCustomTitle = true;
+        this.hideRenameHint();
         this.markStateDirty();
+      });
+    }
+
+    // Rename hint click focuses and selects the field
+    if (this.projectRenameHint) {
+      this.projectRenameHint.addEventListener('click', () => {
+        if (this.projectTitleInput) {
+          this.projectTitleInput.focus();
+          this.projectTitleInput.select();
+        }
+      });
+    }
+
+    // Dismiss rename hint
+    if (this.btnDismissRenameHint) {
+      this.btnDismissRenameHint.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.state.hasCustomTitle = true;
+        this.hideRenameHint();
+        this.saveDraft(false);
       });
     }
 
@@ -173,26 +211,40 @@ class CertifyApp {
 
   async loadInitialDraft() {
     const draft = await this.storage.load();
-    if (draft && draft.template && draft.template.dataUrl) {
-      const img = new Image();
-      img.onload = () => {
-        this.state.title = draft.title || this.state.title;
+    if (draft) {
+      this.state.hasCustomTitle = !!draft.hasCustomTitle || (draft.title && draft.title !== 'Graduation batch 2026');
+      if (draft.title) {
+        this.state.title = draft.title;
         if (this.projectTitleInput) this.projectTitleInput.value = this.state.title;
+      }
 
-        this.state.textField = { ...this.state.textField, ...draft.textField };
-        if (Array.isArray(draft.names)) {
-          this.state.names = draft.names;
-        }
+      if (this.state.hasCustomTitle) {
+        this.hideRenameHint();
+      } else {
+        this.showRenameHint();
+      }
 
-        this.handleTemplateUploaded({
-          dataUrl: draft.template.dataUrl,
-          width: draft.template.width || img.naturalWidth,
-          height: draft.template.height || img.naturalHeight,
-          imageElement: img,
-          fileName: draft.template.fileName || 'template.png'
-        }, false);
-      };
-      img.src = draft.template.dataUrl;
+      if (draft.template && draft.template.dataUrl) {
+        const img = new Image();
+        img.onload = () => {
+          this.state.textField = { ...this.state.textField, ...draft.textField };
+          if (Array.isArray(draft.names)) {
+            this.state.names = draft.names;
+          }
+
+          this.handleTemplateUploaded({
+            dataUrl: draft.template.dataUrl,
+            width: draft.template.width || img.naturalWidth,
+            height: draft.template.height || img.naturalHeight,
+            imageElement: img,
+            fileName: draft.template.fileName || 'template.png'
+          }, false);
+        };
+        img.src = draft.template.dataUrl;
+      }
+    } else {
+      // Moment 1: Right when a new project starts
+      this.showRenameHint();
     }
   }
 
@@ -272,6 +324,11 @@ class CertifyApp {
     // Initial canvas render & switch to editing view
     this.renderCanvasPreview();
     this.switchView('editing');
+
+    // Moment 2: Right after first template upload completes
+    if (!this.state.hasCustomTitle) {
+      this.showRenameHint();
+    }
   }
 
   renderCanvasPreview() {
@@ -556,6 +613,7 @@ class CertifyApp {
   async saveDraft(immediate = false) {
     return await this.storage.save({
       title: this.state.title,
+      hasCustomTitle: this.state.hasCustomTitle,
       template: this.state.template ? {
         dataUrl: this.state.template.dataUrl,
         width: this.state.template.width,
