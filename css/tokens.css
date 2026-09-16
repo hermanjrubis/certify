@@ -1,0 +1,59 @@
+/* Certify Design Tokens */
+:root {
+  /* Colors */
+  --bg-page: #FBFCF8;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F6F8F4;
+  --bg-input: #F8FAF6;
+  
+  /* Green Accent Scale */
+  --accent: #59B84D;
+  --accent-hover: #4FA743;
+  --accent-active: #45963A;
+  --accent-dark: #2E5C24;
+  --text-on-accent: #FFFFFF;
+  --text-on-mint: #2E5C24;
+  
+  /* Mint Tint */
+  --mint-tint: #EAF6E2;
+  --mint-tint-hover: #E0F1D5;
+  --mint-tint-active: #D4EBC7;
+  
+  /* Hairline Borders - Consistent throughout app */
+  --border-hairline: #DCEAD6;
+  --border-subtle: #E6EFE2;
+  --border-focus: #59B84D;
+  
+  /* Neutral Typography */
+  --text-primary: #1F2A1B;
+  --text-secondary: #6E7A67;
+  --text-muted: #9CAA94;
+  --text-inverse: #FFFFFF;
+  
+  /* Status Colors */
+  --color-danger: #D64545;
+  --color-danger-bg: #FDF2F2;
+  --color-danger-border: #F5C6C6;
+  
+  /* Typography */
+  --font-ui: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: 'Fraunces', Georgia, serif;
+  
+  /* Radii - soft, friendly, 10-16px */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+  
+  /* Flat shadows - no blur / glass */
+  --shadow-subtle: 0 1px 3px rgba(31, 42, 27, 0.04), 0 1px 2px rgba(31, 42, 27, 0.02);
+  --shadow-card: 0 4px 16px rgba(31, 42, 27, 0.05);
+  --shadow-dropdown: 0 8px 24px rgba(31, 42, 27, 0.08);
+  --shadow-modal: 0 12px 32px rgba(31, 42, 27, 0.12);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}

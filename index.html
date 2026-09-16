@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certify — Bulk Certificate Generator</title>
+  <meta name="description" content="Generate hundreds of certificates from one template image. 100% client-side, zero backend, auto-fitting typography. Download ready-to-print ZIP archives in seconds.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts: UI, Heading, Wordmark, and Sample Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Poppins:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body class="home-body">
+
+  <div class="home-page-wrapper">
+    
+    <!-- Navigation Bar -->
+    <header class="home-header">
+      <div class="home-container home-nav">
+        <a href="index.html" class="brand-wrapper" title="Certify Bulk Certificate Generator">
+          <img src="assets/logo.png" alt="Certify Logo" class="brand-logo-img">
+        </a>
+
+        <!-- Mobile Navigation Toggle Button -->
+        <button type="button" class="home-nav-toggle" id="btn-mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="home-nav-menu">
+          <svg class="nav-icon-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <svg class="nav-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Nav Links / Collapsible Mobile Menu -->
+        <nav class="home-nav-links" id="home-nav-menu" aria-label="Main Navigation">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link" id="btn-how-it-works">How it works</a>
+          <a href="app.html" class="btn btn-primary btn-sm">Start for free</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Page Content -->
+    <main class="home-main">
+      <div class="home-container">
+        
+        <!-- Hero Section -->
+        <section class="hero-section">
+          <div class="hero-content">
+            <h1 class="hero-headline">Hundreds of certificates, one template away.</h1>
+            <p class="hero-subhead">
+              Upload your design, paste your list of names, and let Certify place, resize, and export every certificate &mdash; ready to share in one zip file.
+            </p>
+            <div class="hero-actions-row">
+              <a href="app.html" class="btn btn-primary" id="cta-create-batch">
+                Start generating certificates
+                <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </a>
+              <button type="button" class="hero-link-how" id="link-see-how">See how it works</button>
+            </div>
+          </div>
+
+          <!-- Tilted Certificate Mockup Card -->
+          <div class="hero-visual" aria-hidden="true">
+            <div class="tilted-cert-card">
+              <div class="cert-mock-header">Certificate of Achievement</div>
+              <div class="cert-mock-textbox">
+                <span class="handle-dot nw"></span>
+                <span class="handle-dot ne"></span>
+                <span class="handle-dot se"></span>
+                <span class="handle-dot sw"></span>
+                <div class="cert-mock-name">Jade Cataya</div>
+                <div class="cert-mock-pill">
+                  <svg class="svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>auto-sized</span>
+                </div>
+              </div>
+              <div class="cert-mock-subtext">has completed the course</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Four Feature Highlights -->
+        <section class="features-grid" id="features" aria-label="Key Features">
+          
+          <!-- Feature 1 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <h3 class="feature-title">Upload any template</h3>
+            <p class="feature-desc">PNG or JPG, your own design up to 20MB.</p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="5 9 2 12 5 15" />
+                <polyline points="9 5 12 2 15 5" />
+                <polyline points="15 19 12 22 9 19" />
+                <polyline points="19 9 22 12 19 15" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="12" y1="2" x2="12" y2="22" />
+              </svg>
+            </div>
+            <h3 class="feature-title">Drag, drop, place</h3>
+            <p class="feature-desc">Put the name field anywhere on the template.</p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </div>
+            <h3 class="feature-title">Paste your name list</h3>
+            <p class="feature-desc">One per line, auto-sized text to fit the box.</p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="17" rx="2" />
+                <path d="M10 4v4" />
+                <path d="M14 6v4" />
+                <path d="M10 10v4" />
+                <path d="M14 12v4" />
+                <rect x="9" y="16" width="6" height="4" rx="1" />
+              </svg>
+            </div>
+            <h3 class="feature-title">One-click zip download</h3>
+            <p class="feature-desc">Full-quality images, no rework or compression loss.</p>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom Mint Banner (Full width) -->
+    <footer class="home-bottom-banner">
+      <div class="home-container home-banner-inner">
+        <span class="home-bottom-text">Made for teachers, event hosts, and anyone printing certificates.</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- How It Works Modal -->
+  <div class="modal-backdrop" id="modal-how-it-works" role="dialog" aria-modal="true" aria-labelledby="how-modal-title">
+    <div class="modal-card how-it-works-modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="how-modal-title">How Certify Works</h3>
+        <button type="button" class="modal-close" id="btn-close-how" aria-label="Close modal">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="how-steps-list">
+        <div class="how-step-item">
+          <div class="step-number">1</div>
+          <div class="step-details">
+            <h4>Upload your certificate template</h4>
+            <p>Drop your certificate background in PNG or JPG. Certify maintains your exact native resolution for crisp printing.</p>
+          </div>
+        </div>
+
+        <div class="how-step-item">
+          <div class="step-number">2</div>
+          <div class="step-details">
+            <h4>Position the recipient name box</h4>
+            <p>Drag and resize the text field overlay to match your template's layout. Pick from curated Google fonts and customize alignment and colors.</p>
+          </div>
+        </div>
+
+        <div class="how-step-item">
+          <div class="step-number">3</div>
+          <div class="step-details">
+            <h4>Paste names and download ZIP</h4>
+            <p>Paste any list of recipients. Every name automatically scales to fit cleanly. Click "Generate zip" to get every certificate bundled in lossless PNG format.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="app.html" class="btn btn-primary btn-sm">Get Started Now</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // How it works modal toggle
+    const howModal = document.getElementById('modal-how-it-works');
+    const btnHow1 = document.getElementById('btn-how-it-works');
+    const btnHow2 = document.getElementById('link-see-how');
+    const btnCloseHow = document.getElementById('btn-close-how');
+
+    function openHowModal(e) {
+      if (e) e.preventDefault();
+      howModal.classList.add('active');
+    }
+
+    function closeHowModal() {
+      howModal.classList.remove('active');
+    }
+
+    if (btnHow1) btnHow1.addEventListener('click', openHowModal);
+    if (btnHow2) btnHow2.addEventListener('click', openHowModal);
+    if (btnCloseHow) btnCloseHow.addEventListener('click', closeHowModal);
+    if (howModal) {
+      howModal.addEventListener('click', (e) => {
+        if (e.target === howModal) closeHowModal();
+      });
+    }
+
+    // Mobile navigation drawer toggle
+    const navToggle = document.getElementById('btn-mobile-nav-toggle');
+    const navMenu = document.getElementById('home-nav-menu');
+    const iconMenu = navToggle ? navToggle.querySelector('.nav-icon-menu') : null;
+    const iconClose = navToggle ? navToggle.querySelector('.nav-icon-close') : null;
+
+    function toggleMobileNav() {
+      if (!navMenu || !navToggle) return;
+      const isOpen = navMenu.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (iconMenu && iconClose) {
+        iconMenu.style.display = isOpen ? 'none' : 'block';
+        iconClose.style.display = isOpen ? 'block' : 'none';
+      }
+    }
+
+    function closeMobileNav() {
+      if (!navMenu || !navToggle) return;
+      navMenu.classList.remove('is-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      if (iconMenu && iconClose) {
+        iconMenu.style.display = 'block';
+        iconClose.style.display = 'none';
+      }
+    }
+
+    if (navToggle && navMenu) {
+      navToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMobileNav();
+      });
+
+      // Close menu when clicking any nav link
+      navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          closeMobileNav();
+        });
+      });
+
+      // Close menu when clicking anywhere outside
+      document.addEventListener('click', (e) => {
+        if (navMenu.classList.contains('is-open') && !navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+          closeMobileNav();
+        }
+      });
+
+      // Close menu on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('is-open')) {
+          closeMobileNav();
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
