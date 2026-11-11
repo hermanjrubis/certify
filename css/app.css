@@ -805,8 +805,10 @@
 }
 
 .color-picker-popover {
-  position: absolute;
+  position: fixed;
   width: 296px;
+  overflow-y: auto;
+  box-sizing: border-box;
   background: var(--bg-card);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
@@ -3327,6 +3329,7 @@
 }
 
 .font-picker-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -3372,6 +3375,7 @@
 }
 
 .font-picker-chips-wrap {
+  flex-shrink: 0;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
