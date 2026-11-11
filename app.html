@@ -30,63 +30,49 @@
       </a>
 
       <div class="project-title-wrapper">
+        <svg class="pencil-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+        </svg>
         <input 
           type="text" 
           id="project-title-input" 
           class="project-title-input" 
-          value="Graduation batch 2026" 
-          aria-label="Certificate Project Name"
+          value="Untitled batch" 
+          aria-label="Certificate Project Title"
           title="Click to rename certificate project"
         >
-        <span class="project-title-rename-hint-group" id="project-rename-hint-group" style="display: none;">
-          <button type="button" class="project-title-rename-hint" id="project-rename-hint" title="Click to rename certificate project">
-            Rename?
-          </button>
-          <button type="button" class="project-title-rename-dismiss" id="btn-dismiss-rename-hint" title="Dismiss rename hint" aria-label="Dismiss">&times;</button>
-        </span>
       </div>
     </div>
 
+    <!-- Stepper Mount -->
+    <div class="app-header-stepper-mount" id="stepper-mount"></div>
+
     <div class="app-header-actions">
-      <button type="button" class="btn btn-secondary btn-sm" id="btn-new-project" title="Start a fresh certificate design">
-        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="12" y1="18" x2="12" y2="12" />
-          <line x1="9" y1="15" x2="15" y2="15" />
-        </svg>
-        New project
-      </button>
+      <span class="save-status-text" id="save-status-text">Saved in this browser</span>
 
-      <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-preview" title="Toggle Batch Preview Grid">
-        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-        Preview
-      </button>
+      <!-- ⋯ Menu -->
+      <div class="header-menu-container">
+        <button type="button" class="btn btn-icon header-more-btn" id="btn-header-more" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+          ⋯
+        </button>
+        <div class="header-dropdown-menu" id="header-dropdown-menu" role="menu" style="display: none;">
+          <button type="button" class="menu-item" role="menuitem" data-action="new-project">
+            New project
+          </button>
+          <button type="button" class="menu-item" role="menuitem" data-action="export-project" disabled title="Upload a template first">
+            Export project file
+          </button>
+        </div>
+      </div>
 
-      <button type="button" class="btn btn-secondary btn-sm" id="btn-save-project" title="Save draft to browser storage">
-        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-          <polyline points="17 21 17 13 7 13 7 21" />
-          <polyline points="7 3 7 8 15 8" />
-        </svg>
-        Save
-      </button>
-
-      <button type="button" class="btn btn-primary btn-sm" id="btn-generate-zip" title="Render all certificates and export as ZIP">
-        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        Generate zip
+      <!-- Primary Action -->
+      <button type="button" class="btn btn-primary" id="btn-review-download" disabled title="Upload a template first">
+        Review & download <span class="badge" id="btn-review-badge">0</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Work Area -->
+  <!-- Main Work Area (No nested <main>) -->
   <main class="app-main">
     <div class="editor-frame">
       
@@ -111,59 +97,25 @@
       <section id="view-editing" style="display: none; flex: 1;">
         <div class="editor-workbench-grid">
           
-          <!-- Left Column: Typography & Style Panel -->
-          <aside id="style-panel-mount"></aside>
+          <!-- Left Column: Layers, Properties & Add Toolbar -->
+          <aside id="left-panel-mount" class="editor-side-panel"></aside>
 
-          <!-- Center Column: Canvas Stage & Text Field Placement -->
-          <main class="canvas-stage-wrapper">
+          <!-- Center Column: Canvas Stage & Text Field Placement (Div, not nested main) -->
+          <div class="canvas-stage-wrapper">
             <div class="canvas-viewport-container" id="canvas-viewport-container">
               <canvas id="preview-canvas"></canvas>
             </div>
-          </main>
+            <div id="row-switcher-mount"></div>
+          </div>
 
-          <!-- Right Column: Names List & Preview Trigger -->
-          <aside id="names-panel-mount"></aside>
+          <!-- Right Column: Recipients Table & Row Switcher -->
+          <aside id="right-panel-mount" class="editor-side-panel"></aside>
 
         </div>
       </section>
 
-      <!-- 3. Batch Preview View State (Grid of Generated Certificates) -->
-      <section id="view-preview" class="batch-preview-container" style="display: none;">
-        <div class="preview-header-bar">
-          <div class="preview-title-group">
-            <h2 id="preview-batch-count">Batch Preview</h2>
-            <p>Inspect every generated certificate before packaging into ZIP.</p>
-          </div>
-
-          <div class="preview-controls">
-            <div class="search-input-wrapper">
-              <svg class="svg-icon search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input type="text" id="preview-search-input" class="input preview-search-input" placeholder="Search recipient...">
-            </div>
-
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-back-to-editor">
-              <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              Back to Editor
-            </button>
-
-            <button type="button" class="btn btn-primary btn-sm" id="btn-preview-export-zip">
-              <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Export ZIP
-            </button>
-          </div>
-        </div>
-
-        <div class="certificates-grid" id="certificates-grid"></div>
-      </section>
+      <!-- 3. Review & Export View State -->
+      <section id="view-review" class="batch-preview-container" style="display: none;"></section>
 
     </div>
   </main>
