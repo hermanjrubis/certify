@@ -6,13 +6,16 @@
 import {
   createDefaultProject,
   createNameLayer,
+  createTextLayer,
+  createImageLayer,
+  createShapeLayer,
   addLayer,
   removeLayer,
   updateLayer,
   moveLayer,
   duplicateLayer
 } from './model/layers.js';
-import { detectNameColumn } from './model/recipients.js';
+import { detectNameColumn, resolveText } from './model/recipients.js';
 import { createHistory } from './model/history.js';
 import { ProjectStorage } from './projectStorage.js';
 import { TemplateUpload } from './templateUpload.js';
@@ -21,6 +24,10 @@ import { renderStepper } from './ui/stepper.js';
 import { initHeaderMenu } from './ui/headerMenu.js';
 import { renderCertificate } from './certificateRenderer.js';
 import { ensureFonts, loadFontFamily } from './fontLoader.js';
+import { extractTemplateColors } from './fontPanel.js';
+import { renderAddToolbar } from './ui/addToolbar.js';
+import { renderLayersPanel } from './ui/layersPanel.js';
+import { renderPropertiesPanel } from './ui/propertiesPanel.js';
 
 class CertifyApp {
   constructor() {
@@ -36,10 +43,12 @@ class CertifyApp {
     this.storage = new ProjectStorage();
     this.saveTimeout = null;
     this.currentReports = [];
+    this.templateColors = [];
 
     this.initDOM();
     this.initOverlay();
     this.initHeader();
+    this.bindKeyboardShortcuts();
     this.loadInitialDraft();
   }
 
@@ -163,11 +172,110 @@ class CertifyApp {
       const img = new Image();
       img.onload = () => {
         this.state.images.set('template', img);
+        try {
+          this.templateColors = extractTemplateColors(img, 3);
+        } catch {}
         resolve(img);
       };
       img.onerror = () => resolve(null);
       img.src = dataUrl;
     });
+  }
+
+  bindKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+        return;
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if ((e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+          e.preventDefault();
+          this.handleUndo();
+        } else if (((e.key === 'z' || e.key === 'Z') && e.shiftKey) || e.key === 'y' || e.key === 'Y') {
+          e.preventDefault();
+          this.handleRedo();
+        }
+      }
+    });
+  }
+
+  handleUndo() {
+    const prevLayers = this.history.undo();
+    if (prevLayers) {
+      this.updateProject(p => ({ ...p, layers: prevLayers }), { commit: false });
+      if (!prevLayers.some(l => l.id === this.state.selectedId)) {
+        this.select(prevLayers[0]?.id || null);
+      }
+    }
+  }
+
+  handleRedo() {
+    const nextLayers = this.history.redo();
+    if (nextLayers) {
+      this.updateProject(p => ({ ...p, layers: nextLayers }), { commit: false });
+      if (!nextLayers.some(l => l.id === this.state.selectedId)) {
+        this.select(nextLayers[0]?.id || null);
+      }
+    }
+  }
+
+  handleAddText() {
+    const newLayer = createTextLayer();
+    this.updateProject(p => ({
+      ...p,
+      layers: addLayer(p.layers, newLayer)
+    }), { commit: true });
+    this.select(newLayer.id);
+  }
+
+  handleAddImage({ src, naturalWidth, naturalHeight }) {
+    const tplW = this.state.project.template?.width || 2000;
+    const tplH = this.state.project.template?.height || 1414;
+    const aspect = tplW / tplH;
+    const newLayer = createImageLayer({ src, naturalWidth, naturalHeight }, aspect);
+    this.loadImageLayer(newLayer.id, src);
+    this.updateProject(p => ({
+      ...p,
+      layers: addLayer(p.layers, newLayer)
+    }), { commit: true });
+    this.select(newLayer.id);
+  }
+
+  handleAddShape(shape) {
+    const newLayer = createShapeLayer(shape);
+    this.updateProject(p => ({
+      ...p,
+      layers: addLayer(p.layers, newLayer)
+    }), { commit: true });
+    this.select(newLayer.id);
+  }
+
+  handleMoveLayer(id, delta) {
+    this.updateProject(p => ({
+      ...p,
+      layers: moveLayer(p.layers, id, delta)
+    }), { commit: true });
+  }
+
+  handleDuplicateLayer(id) {
+    const { layers: newLayers, newId } = duplicateLayer(this.state.project.layers, id);
+    if (newId) {
+      this.updateProject(p => ({
+        ...p,
+        layers: newLayers
+      }), { commit: true });
+      this.select(newId);
+    }
+  }
+
+  handleRemoveLayer(id) {
+    this.updateProject(p => ({
+      ...p,
+      layers: removeLayer(p.layers, id)
+    }), { commit: true });
+    this.select(this.state.project.layers[0]?.id || null);
   }
 
   loadImageLayer(layerId, src) {
@@ -348,12 +456,66 @@ class CertifyApp {
     });
   }
 
+  renderPanels() {
+    if (!this.leftPanelMount) return;
+
+    if (!this.addToolbarMount) {
+      this.leftPanelMount.innerHTML = `
+        <div id="add-toolbar-mount"></div>
+        <div id="layers-panel-mount"></div>
+        <div id="properties-panel-mount"></div>
+      `;
+      this.addToolbarMount = this.leftPanelMount.querySelector('#add-toolbar-mount');
+      this.layersPanelMount = this.leftPanelMount.querySelector('#layers-panel-mount');
+      this.propertiesPanelMount = this.leftPanelMount.querySelector('#properties-panel-mount');
+    }
+
+    renderAddToolbar(this.addToolbarMount, {
+      onAddText: () => this.handleAddText(),
+      onAddImage: (imgData) => this.handleAddImage(imgData),
+      onAddShape: (shape) => this.handleAddShape(shape),
+      onUndo: () => this.handleUndo(),
+      onRedo: () => this.handleRedo(),
+      canUndo: this.history.canUndo(),
+      canRedo: this.history.canRedo()
+    });
+
+    renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
+      onSelect: (id) => this.select(id)
+    });
+
+    const selectedLayer = this.state.project.layers.find(l => l.id === this.state.selectedId);
+    const row = this.state.project.recipients.rows[this.state.currentRow] || null;
+    const sampleText = (selectedLayer && selectedLayer.type === 'text')
+      ? (row ? resolveText(selectedLayer.text, row) : selectedLayer.text)
+      : '';
+
+    renderPropertiesPanel(this.propertiesPanelMount, selectedLayer, {
+      columns: this.state.project.recipients.columns,
+      templateColors: this.templateColors,
+      sampleText,
+      onChange: (patch, { commit }) => {
+        if (this.state.selectedId) {
+          this.updateProject(p => ({
+            ...p,
+            layers: updateLayer(p.layers, this.state.selectedId, patch)
+          }), { commit });
+        }
+      },
+      onMoveLayer: (id, delta) => this.handleMoveLayer(id, delta),
+      onDuplicateLayer: (id) => this.handleDuplicateLayer(id),
+      onRemoveLayer: (id) => this.handleRemoveLayer(id)
+    });
+  }
+
+  onSelectLayer() {
+    this.renderPanels();
+  }
+
   render() {
     this.updateHeader();
     this.renderCanvas();
-    if (typeof this.renderPanels === 'function') {
-      this.renderPanels();
-    }
+    this.renderPanels();
   }
 
   renderCanvas() {
