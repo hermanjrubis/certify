@@ -33,7 +33,9 @@ import { renderRowSwitcher } from './ui/rowSwitcher.js';
 import { renderReviewView } from './ui/reviewView.js';
 import { ZipExporter } from './zipExport.js';
 import { showConfirmDialog } from './ui/confirmDialog.js';
-import { computeFit } from './model/placement.js';
+import { computeFit, findFreeSlot } from './model/placement.js';
+import { pickReadableInk } from './color/colorMath.js';
+import { sampleAverageColor } from './color/templateColors.js';
 
 class CertifyApp {
   constructor() {
@@ -222,7 +224,13 @@ class CertifyApp {
       img.onload = () => {
         this.state.images.set('template', img);
         try {
-          this.templateColors = extractTemplateColors(img, 3);
+          this.templateColors = extractTemplateColors(img, 6);
+          const off = document.createElement('canvas');
+          off.width = img.naturalWidth || 2000;
+          off.height = img.naturalHeight || 1414;
+          const offCtx = off.getContext('2d', { willReadFrequently: true });
+          offCtx.drawImage(img, 0, 0);
+          this.templateImageData = offCtx.getImageData(0, 0, off.width, off.height);
         } catch {}
         resolve(img);
       };
@@ -271,7 +279,37 @@ class CertifyApp {
   }
 
   handleAddText() {
-    const newLayer = createTextLayer();
+    const textSpots = [
+      { xPct: 25, yPct: 62 },
+      { xPct: 25, yPct: 72 },
+      { xPct: 25, yPct: 30 },
+      { xPct: 25, yPct: 82 }
+    ];
+    const size = { wPct: 50, hPct: 7 };
+    const slot = findFreeSlot(this.state.project.layers, size, textSpots);
+
+    let ink = '#1F2A1B';
+    if (this.templateImageData && this.state.project.template) {
+      const tplW = this.state.project.template.width;
+      const tplH = this.state.project.template.height;
+      const box = {
+        x: tplW * (slot.xPct / 100),
+        y: tplH * (slot.yPct / 100),
+        width: tplW * (size.wPct / 100),
+        height: tplH * (size.hPct / 100)
+      };
+      const bgHex = sampleAverageColor(this.templateImageData, box);
+      ink = pickReadableInk(bgHex, [...this.templateColors, '#1F2A1B', '#FFFFFF']);
+    }
+
+    const newLayer = createTextLayer({
+      xPct: slot.xPct,
+      yPct: slot.yPct,
+      wPct: size.wPct,
+      hPct: size.hPct,
+      color: ink
+    });
+
     this.updateProject(p => ({
       ...p,
       layers: addLayer(p.layers, newLayer)
@@ -283,7 +321,20 @@ class CertifyApp {
     const tplW = this.state.project.template?.width || 2000;
     const tplH = this.state.project.template?.height || 1414;
     const aspect = tplW / tplH;
-    const newLayer = createImageLayer({ src, naturalWidth, naturalHeight }, aspect);
+    const imageSpots = [
+      { xPct: 68, yPct: 72 },
+      { xPct: 10, yPct: 72 },
+      { xPct: 70, yPct: 8 },
+      { xPct: 8, yPct: 8 }
+    ];
+    const wPct = 20;
+    const hPct = 20 * (naturalHeight / naturalWidth) * aspect;
+    const slot = findFreeSlot(this.state.project.layers, { wPct, hPct }, imageSpots);
+
+    const newLayer = createImageLayer({ src, naturalWidth, naturalHeight }, aspect, {
+      xPct: slot.xPct,
+      yPct: slot.yPct
+    });
     this.loadImageLayer(newLayer.id, src);
     this.updateProject(p => ({
       ...p,
@@ -293,7 +344,22 @@ class CertifyApp {
   }
 
   handleAddShape(shape) {
-    const newLayer = createShapeLayer(shape);
+    let slot = { xPct: 25, yPct: 25 };
+    if (shape === 'line') {
+      const nameLayer = this.state.project.layers.find(l => l.name === 'Recipient name' || l.type === 'text');
+      const lineY = nameLayer ? Math.min(95, nameLayer.yPct + nameLayer.hPct + 1) : 60;
+      const lineSpots = [{ xPct: 20, yPct: lineY }, { xPct: 20, yPct: 60 }];
+      slot = findFreeSlot(this.state.project.layers, { wPct: 60, hPct: 2 }, lineSpots);
+    } else {
+      const spots = [{ xPct: 35, yPct: 30 }];
+      const size = shape === 'rect' ? { wPct: 40, hPct: 30 } : { wPct: 20, hPct: 28 };
+      slot = findFreeSlot(this.state.project.layers, size, spots);
+    }
+
+    const newLayer = createShapeLayer(shape, {
+      xPct: slot.xPct,
+      yPct: slot.yPct
+    });
     this.updateProject(p => ({
       ...p,
       layers: addLayer(p.layers, newLayer)
@@ -348,10 +414,28 @@ class CertifyApp {
 
     await this.loadTemplateImage(templateData.dataUrl);
 
+    // Pick readable ink for initial name layer based on background under it
+    let readableInk = '#1F2A1B';
+    if (this.templateImageData) {
+      const box = {
+        x: templateData.width * 0.20,
+        y: templateData.height * 0.45,
+        width: templateData.width * 0.60,
+        height: templateData.height * 0.15
+      };
+      const bgHex = sampleAverageColor(this.templateImageData, box);
+      readableInk = pickReadableInk(bgHex, [...this.templateColors, '#1F2A1B', '#FFFFFF']);
+    }
+
     // If project has no layers, create initial name layer
     if (!this.state.project.layers || this.state.project.layers.length === 0) {
       const nameCol = detectNameColumn(this.state.project.recipients.columns);
-      this.state.project.layers = [createNameLayer(nameCol)];
+      this.state.project.layers = [createNameLayer(nameCol, { color: readableInk })];
+    } else {
+      const nameLayer = this.state.project.layers[0];
+      if (nameLayer && nameLayer.name === 'Recipient name') {
+        this.state.project.layers[0] = { ...nameLayer, color: readableInk };
+      }
     }
 
     this.state.selectedId = this.state.project.layers[0]?.id || null;

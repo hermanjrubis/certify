@@ -45,7 +45,7 @@ export function createTextLayer(overrides = {}) {
   };
 }
 
-export function createImageLayer({ src, naturalWidth, naturalHeight }, templateAspect = 1.414) {
+export function createImageLayer({ src, naturalWidth, naturalHeight }, templateAspect = 1.414, overrides = {}) {
   const wPct = 20;
   const hPct = 20 * (naturalHeight / naturalWidth) * templateAspect;
   return {
@@ -60,11 +60,12 @@ export function createImageLayer({ src, naturalWidth, naturalHeight }, templateA
     xPct: (100 - wPct) / 2,
     yPct: (100 - hPct) / 2,
     wPct,
-    hPct
+    hPct,
+    ...overrides
   };
 }
 
-export function createShapeLayer(shape = 'line') {
+export function createShapeLayer(shape = 'line', overrides = {}) {
   const base = {
     id: createId(),
     type: 'shape',
@@ -74,46 +75,45 @@ export function createShapeLayer(shape = 'line') {
     strokeWidthPct: 0.3
   };
 
+  let specific = {};
   if (shape === 'line') {
-    return {
-      ...base,
+    specific = {
       name: 'Line',
       xPct: 20,
       yPct: 55,
       wPct: 60,
       hPct: 2
     };
-  }
-
-  if (shape === 'rect') {
-    return {
-      ...base,
+  } else if (shape === 'rect') {
+    specific = {
       name: 'Box',
       xPct: 30,
       yPct: 30,
       wPct: 40,
       hPct: 30
     };
-  }
-
-  if (shape === 'ellipse') {
-    return {
-      ...base,
+  } else if (shape === 'ellipse') {
+    specific = {
       name: 'Circle',
       xPct: 40,
       yPct: 35,
       wPct: 20,
       hPct: 28
     };
+  } else {
+    specific = {
+      name: 'Shape',
+      xPct: 25,
+      yPct: 25,
+      wPct: 50,
+      hPct: 50
+    };
   }
 
   return {
     ...base,
-    name: 'Shape',
-    xPct: 25,
-    yPct: 25,
-    wPct: 50,
-    hPct: 50
+    ...specific,
+    ...overrides
   };
 }
 
