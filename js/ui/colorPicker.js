@@ -6,6 +6,7 @@ import {
   hsvToRgb
 } from '../color/colorMath.js';
 import { DEFAULT_COLORS } from '../color/templateColors.js';
+import { computePopoverPosition, panelAnchorRect } from './popoverPosition.js';
 
 let activePicker = null;
 
@@ -156,23 +157,16 @@ export function openColorPicker(anchorEl, {
 
   function positionPopover() {
     if (isMobile) return;
-    const rect = anchorEl.getBoundingClientRect();
-    const popW = 296;
-    let left = rect.left;
-    let top = rect.bottom + 6;
-
-    if (left + popW > window.innerWidth - 12) {
-      left = window.innerWidth - popW - 12;
-    }
-    if (left < 12) left = 12;
-
-    const popH = popover.offsetHeight || 380;
-    if (top + popH > window.innerHeight - 12 && rect.top > popH + 12) {
-      top = rect.top - popH - 6;
-    }
-
-    popover.style.left = `${left}px`;
-    popover.style.top = `${top}px`;
+    // Measure the natural height first, then place it fully on screen
+    popover.style.maxHeight = '';
+    const pos = computePopoverPosition({
+      anchor: panelAnchorRect(anchorEl),
+      size: { width: 296, height: popover.scrollHeight || 380 },
+      viewport: { width: window.innerWidth, height: window.innerHeight }
+    });
+    popover.style.left = `${pos.left}px`;
+    popover.style.top = `${pos.top}px`;
+    popover.style.maxHeight = `${pos.maxHeight}px`;
   }
 
   positionPopover();

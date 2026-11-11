@@ -5,6 +5,7 @@
 
 import { FONT_CATEGORIES, FONT_CATALOG, getFont, searchFonts } from '../fonts/catalog.js';
 import { loadFontFamily, loadFontPreview } from '../fontLoader.js';
+import { computePopoverPosition, panelAnchorRect } from './popoverPosition.js';
 
 const RECENT_KEY = 'certify.recentFonts';
 
@@ -49,20 +50,16 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
   popover.setAttribute('role', 'dialog');
   popover.setAttribute('aria-label', 'Select font');
 
-  // Positioning for desktop popover
+  // Desktop: open beside the side panel, always fully on screen
   if (!isMobile && anchorEl) {
-    const rect = anchorEl.getBoundingClientRect();
-    const width = 360;
-    let left = rect.left;
-    if (left + width > window.innerWidth - 16) {
-      left = Math.max(16, window.innerWidth - width - 16);
-    }
-    let top = rect.bottom + 6;
-    if (top + 450 > window.innerHeight && rect.top > 450) {
-      top = rect.top - 456;
-    }
-    popover.style.top = `${top}px`;
-    popover.style.left = `${left}px`;
+    const pos = computePopoverPosition({
+      anchor: panelAnchorRect(anchorEl),
+      size: { width: 380, height: 520 },
+      viewport: { width: window.innerWidth, height: window.innerHeight }
+    });
+    popover.style.left = `${pos.left}px`;
+    popover.style.top = `${pos.top}px`;
+    popover.style.maxHeight = `${pos.maxHeight}px`;
   }
 
   let selectedCategory = 'all';
