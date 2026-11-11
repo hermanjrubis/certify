@@ -5,9 +5,11 @@
 
 import { SIZE_STEPS } from '../model/layers.js';
 import { openFontPicker } from './fontPicker.js';
-import { getFont } from '../fonts/catalog.js';
+import { getFont, FONT_CATEGORIES } from '../fonts/catalog.js';
 import { openColorPicker } from './colorPicker.js';
 import { normalizeHex, contrastRatio, pickReadableInk } from '../color/colorMath.js';
+
+const SIZE_WORDS = ['Small', 'Medium-small', 'Medium', 'Large', 'Extra large'];
 
 export function renderPropertiesPanel(el, layer, {
   columns = ['Name'],
@@ -142,7 +144,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText, bgUn
             <span class="font-btn-family" style="font-family: '${fontInfo.family}', serif; font-weight: ${fontInfo.weight || 400};">
               ${escapeHtml(fontInfo.family)}
             </span>
-            <span class="font-btn-category">${escapeHtml(fontInfo.category || 'Font')}</span>
+            <span class="font-btn-category">${escapeHtml(FONT_CATEGORIES.find(c => c.id === fontInfo.category)?.label || fontInfo.category || 'Font')}</span>
           </div>
           <span class="font-btn-chevron">▾</span>
         </button>
@@ -152,7 +154,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText, bgUn
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="size-step-range">Size</label>
-          <span class="font-size-hint">Step ${sizeIndex} of 5</span>
+          <span class="font-size-hint">${SIZE_WORDS[sizeIndex - 1] || 'Medium'}</span>
         </div>
         <input type="range" class="range-slider" id="size-step-range" min="1" max="5" step="1" value="${sizeIndex}" />
       </div>
@@ -185,15 +187,9 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText, bgUn
 
   if (layer.type === 'image') {
     return `
-      <div class="form-group">
-        <label class="form-label">Image Preview</label>
-        <div class="image-layer-preview-box">
-          <img src="${layer.src}" class="image-layer-thumb" alt="Layer preview" />
-        </div>
-      </div>
-
-      <div class="form-group">
+      <div class="form-group image-replace-row">
         <button type="button" class="btn btn-secondary btn-sm" id="btn-replace-image">Replace image</button>
+        <span class="image-filename-text" title="${escapeHtml(layer.fileName || 'Image')}">${escapeHtml(layer.fileName || 'image.png')}</span>
         <input type="file" id="replace-image-file-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;" />
       </div>
 
@@ -407,7 +403,7 @@ function bindEvents(el, layer, {
         const idx = parseInt(e.target.value, 10) - 1;
         const sizePct = SIZE_STEPS[idx] ?? 0.75;
         const hint = el.querySelector('.font-size-hint');
-        if (hint) hint.textContent = `Step ${idx + 1} of 5`;
+        if (hint) hint.textContent = SIZE_WORDS[idx] || 'Medium';
         onChange({ sizePct }, { commit: false });
       });
       sizeRange.addEventListener('change', (e) => {
@@ -457,6 +453,7 @@ function bindEvents(el, layer, {
           img.onload = () => {
             onChange({
               src: dataUrl,
+              fileName: file.name,
               naturalWidth: img.naturalWidth,
               naturalHeight: img.naturalHeight
             }, { commit: true });

@@ -127,6 +127,11 @@
   margin: 0;
 }
 
+.stepper-item {
+  display: flex;
+  align-items: center;
+}
+
 .stepper-step {
   display: flex;
   align-items: center;
@@ -135,6 +140,22 @@
   font-weight: 500;
   color: var(--text-secondary);
   opacity: 0.6;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity var(--transition-fast);
+}
+
+.stepper-step[aria-disabled="true"] {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.stepper-step:not([aria-disabled="true"]):hover {
+  opacity: 1;
 }
 
 .stepper-step.active {
@@ -183,6 +204,12 @@
   font-size: 0.75rem;
   color: var(--text-secondary);
   white-space: nowrap;
+}
+
+#btn-review-download {
+  height: 44px;
+  font-size: 15px;
+  padding: 0 20px;
 }
 
 /* Header More Menu */
@@ -263,14 +290,45 @@
 /* ==========================================================================
    Left Panel: Add Toolbar, Layers List, Properties
    ========================================================================== */
+.canvas-stage-toolbar-mount {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  z-index: 5;
+}
+
 .add-toolbar-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hairline);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-hairline);
+  margin: 0 0.25rem;
+}
+
+.image-replace-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--border-hairline);
-  margin-bottom: 1rem;
+  gap: 0.65rem;
+}
+
+.image-filename-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
 .add-buttons-group {
@@ -1944,15 +2002,26 @@
 
 .recipients-panel-header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   margin-bottom: 0.75rem;
 }
 
 .recipients-header-actions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.recipients-header-actions .btn-text-action {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.recipients-inline-helper {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
 }
 
 .recipients-tabs {
@@ -2229,6 +2298,10 @@
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+#review-filter-control .segment-btn {
+  white-space: nowrap;
 }
 
 .review-search-input {
@@ -3137,13 +3210,30 @@
   color: var(--text-primary);
 }
 
+.font-picker-chips-wrap {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.font-picker-chips-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--bg-card));
+  pointer-events: none;
+}
+
 .font-picker-chips {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.4rem;
   padding: 0.5rem 1rem;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border-subtle);
   scrollbar-width: none;
+  white-space: nowrap;
 }
 
 .font-picker-chips::-webkit-scrollbar {
@@ -3151,8 +3241,11 @@
 }
 
 .font-picker-chip {
-  padding: 0.25rem 0.65rem;
-  font-size: 0.75rem;
+  height: 36px;
+  padding: 0 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8125rem;
   font-weight: 500;
   border-radius: var(--radius-pill);
   background: var(--bg-subtle);
@@ -3160,6 +3253,7 @@
   white-space: nowrap;
   border: 1px solid transparent;
   cursor: pointer;
+  flex-shrink: 0;
   transition: all var(--transition-fast);
 }
 

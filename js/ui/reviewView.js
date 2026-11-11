@@ -60,15 +60,15 @@ export function renderReviewView(el, { project, images, onBack, onDownload }) {
         <div class="review-header-bar">
           <div class="review-title-group">
             <button type="button" class="btn btn-secondary btn-sm" id="btn-review-back">
-              ← Back to Editor
+              ← Back to editing
             </button>
             <h2 class="review-title">${totalCount} certificates ready</h2>
           </div>
 
           <div class="review-filters-group">
             <div class="segmented-control" id="review-filter-control">
-              <button type="button" class="segment-btn active" data-filter="all">All ${totalCount}</button>
-              <button type="button" class="segment-btn" data-filter="worth-a-look">Worth a look · ${worthALookCount}</button>
+              <button type="button" class="segment-btn active" data-filter="all">All (${totalCount})</button>
+              <button type="button" class="segment-btn" data-filter="worth-a-look">Worth a look (${worthALookCount})</button>
             </div>
 
             <div class="search-input-wrapper">
@@ -84,7 +84,7 @@ export function renderReviewView(el, { project, images, onBack, onDownload }) {
       <!-- Side Summary Card -->
       <aside class="review-side-card">
         <div class="side-card-header">
-          <h3 class="side-card-title">Download ZIP</h3>
+          <h3 class="side-card-title">Your download</h3>
         </div>
         <div class="side-card-details">
           <div class="detail-row">

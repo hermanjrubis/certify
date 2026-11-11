@@ -32,19 +32,20 @@ export function renderRecipientsPanel(el, recipients, {
   onChange,
   onShowRow,
   onReviewClick
-}) {
+} = {}) {
   if (!el) return;
 
   const currentTab = recipients.source === 'csv' ? 'csv' : 'paste';
   const rowCount = recipients.rows.length;
   const nameCol = detectNameColumn(recipients.columns);
+  const showTable = recipients.columns.length > 1 || recipients.source === 'csv';
 
   el.innerHTML = `
     <div class="recipients-panel-container">
       <div class="recipients-panel-header">
         <span class="section-label">Recipients (${rowCount})</span>
         <div class="recipients-header-actions">
-          <button type="button" class="btn-text-action" id="btn-load-sample" title="Load 8 sample test recipients">Sample</button>
+          <button type="button" class="btn-text-action" id="btn-load-sample" title="Load 8 sample test recipients">Load sample</button>
           <button type="button" class="btn-text-action btn-text-danger" id="btn-clear-recipients" title="Clear all recipients">Clear</button>
         </div>
       </div>
@@ -67,6 +68,7 @@ export function renderRecipientsPanel(el, recipients, {
           placeholder="Paste names here, one per line (or spreadsheet table)..."
           rows="5"
         >${currentTab === 'paste' ? recipients.rows.map(r => r.Name || Object.values(r)[0] || '').join('\n') : ''}</textarea>
+        ${rowCount === 0 ? '<p class="recipients-inline-helper">Paste one name per line, or import a CSV</p>' : ''}
       </div>
 
       <!-- Tab 2: Import CSV -->
@@ -87,8 +89,8 @@ export function renderRecipientsPanel(el, recipients, {
         </div>
       </div>
 
-      <!-- Table Preview -->
-      <div class="table-preview-section">
+      <!-- Table Preview (Shown only for multi-column or CSV) -->
+      <div class="table-preview-section" style="${showTable ? '' : 'display: none;'}">
         <div class="columns-header-row">
           <span class="columns-label">Columns:</span>
           <div class="columns-chips">
@@ -103,13 +105,6 @@ export function renderRecipientsPanel(el, recipients, {
 
       <!-- Checks & Warnings -->
       <div class="checks-list-section" id="checks-list-container"></div>
-
-      <!-- Bottom Review Action -->
-      <div class="recipients-footer">
-        <button type="button" class="btn btn-primary btn-full-width" id="btn-review-certificates" ${rowCount === 0 ? 'disabled' : ''}>
-          Review all ${rowCount} certificates
-        </button>
-      </div>
     </div>
   `;
 
@@ -131,6 +126,7 @@ export function updateRecipientsDerived(el, recipients, {
   if (!el) return;
 
   const rowCount = recipients.rows.length;
+  const showTable = recipients.columns.length > 1 || recipients.source === 'csv';
 
   // 1. Update header label
   const labelEl = el.querySelector('.recipients-panel-header .section-label');
@@ -138,7 +134,27 @@ export function updateRecipientsDerived(el, recipients, {
     labelEl.textContent = `Recipients (${rowCount})`;
   }
 
-  // 2. Update columns chips
+  // 2. Update empty state helper
+  const pasteTab = el.querySelector('#tab-paste-content');
+  let helper = pasteTab?.querySelector('.recipients-inline-helper');
+  if (rowCount === 0) {
+    if (!helper && pasteTab) {
+      helper = document.createElement('p');
+      helper.className = 'recipients-inline-helper';
+      helper.textContent = 'Paste one name per line, or import a CSV';
+      pasteTab.appendChild(helper);
+    }
+  } else if (helper) {
+    helper.remove();
+  }
+
+  // 3. Update table section visibility
+  const tableSection = el.querySelector('.table-preview-section');
+  if (tableSection) {
+    tableSection.style.display = showTable ? 'block' : 'none';
+  }
+
+  // 4. Update columns chips
   const chipsWrapper = el.querySelector('.columns-chips');
   if (chipsWrapper) {
     chipsWrapper.innerHTML = recipients.columns.map(c => `
@@ -146,23 +162,16 @@ export function updateRecipientsDerived(el, recipients, {
     `).join('');
   }
 
-  // 3. Update table preview
+  // 5. Update table preview
   const tableWrapper = el.querySelector('#table-preview-wrapper');
   if (tableWrapper) {
     renderTablePreview(tableWrapper, recipients, currentRow, onShowRow);
   }
 
-  // 4. Update data checks
+  // 6. Update data checks
   const checksContainer = el.querySelector('#checks-list-container');
   if (checksContainer) {
     renderChecksList(checksContainer, recipients, layers, reports, onShowRow);
-  }
-
-  // 5. Update review footer button
-  const reviewBtn = el.querySelector('#btn-review-certificates');
-  if (reviewBtn) {
-    reviewBtn.textContent = `Review all ${rowCount} certificates`;
-    reviewBtn.disabled = rowCount === 0;
   }
 }
 
@@ -171,10 +180,6 @@ function renderTablePreview(container, recipients, currentRow, onShowRow) {
   container.innerHTML = '';
 
   if (recipients.rows.length === 0) {
-    const emptyP = document.createElement('p');
-    emptyP.className = 'table-empty-text';
-    emptyP.textContent = 'No recipients yet. Paste names or import a CSV.';
-    container.appendChild(emptyP);
     return;
   }
 
@@ -258,65 +263,74 @@ function renderChecksList(container, recipients, layers, reports, onShowRow) {
     li.className = 'check-item check-warn';
     li.textContent = `⚠ ${duplicates.length} duplicate name${duplicates.length > 1 ? 's' : ''} found (${duplicates[0]})`;
     ul.appendChild(li);
-  } else {
-    const li = document.createElement('li');
-    li.className = 'check-item check-ok';
-    li.textContent = '✓ No duplicate names';
-    ul.appendChild(li);
   }
 
-  // 3. Check blanks
+  // 3. Check blank rows
   const blanks = findBlankRows(rows, nameCol);
   if (blanks.length > 0) {
     const li = document.createElement('li');
     li.className = 'check-item check-warn';
-    const humanIndices = blanks.map(b => b + 1).slice(0, 3).join(', ');
-    li.textContent = `⚠ Row(s) ${humanIndices}: blank ${nameCol}`;
-    ul.appendChild(li);
-  } else {
-    const li = document.createElement('li');
-    li.className = 'check-item check-ok';
-    li.textContent = `✓ No blank ${nameCol}s`;
+    li.textContent = `⚠ ${blanks.length} blank name${blanks.length > 1 ? 's' : ''} (row ${blanks[0] + 1})`;
     ul.appendChild(li);
   }
 
-  // 4. Missing tokens
-  const missing = findMissingTokens(layers, recipients.columns);
+  // 4. Check missing column tokens in text layers
+  const allTokens = layers
+    .filter(l => l.type === 'text')
+    .map(l => l.text || '')
+    .join(' ');
+  const missing = findMissingTokens(allTokens, recipients.columns);
   if (missing.length > 0) {
     const li = document.createElement('li');
-    li.className = 'check-item check-warn';
-    li.textContent = `⚠ Missing column: {${missing.join('}, {')}}`;
+    li.className = 'check-item check-danger';
+    li.textContent = `✕ Missing column${missing.length > 1 ? 's' : ''}: {${missing.join('}, {')}}`;
     ul.appendChild(li);
   }
 
-  // 5. Long names shrinking
-  const shrinkCount = (reports || []).filter(r => r.worthALook).length;
-  if (shrinkCount > 0) {
+  // 5. Test longest row notice
+  const longestIdx = longestRowIndex(rows, layers);
+  if (longestIdx >= 0) {
     const li = document.createElement('li');
-    li.className = 'check-item check-warn';
-    li.innerHTML = `⚠ ${shrinkCount} long name${shrinkCount > 1 ? 's' : ''} will shrink · <button type="button" class="check-link-btn" id="btn-show-longest">Show it</button>`;
-    const btnShow = li.querySelector('#btn-show-longest');
-    btnShow.addEventListener('click', () => {
-      const idx = longestRowIndex(rows, layers);
-      if (idx !== -1 && onShowRow) onShowRow(idx);
+    li.className = 'check-item check-info';
+    const longestBtn = document.createElement('button');
+    longestBtn.type = 'button';
+    longestBtn.className = 'btn-text-link';
+    longestBtn.textContent = `Preview longest name (Row ${longestIdx + 1})`;
+    longestBtn.addEventListener('click', () => {
+      if (onShowRow) onShowRow(longestIdx);
     });
+    li.appendChild(longestBtn);
+    ul.appendChild(li);
+  }
+
+  // 6. Worth a look warning if any shrunken names
+  if (reports && reports.some(r => r.worthALook)) {
+    const li = document.createElement('li');
+    li.className = 'check-item check-accent';
+    li.textContent = 'ℹ Some names were shrunk to fit their box. Check them in Review.';
     ul.appendChild(li);
   }
 
   container.appendChild(ul);
 }
 
-function bindEvents(el, recipients, { onChange, onShowRow, onReviewClick }) {
-  // Tabs
-  el.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      el.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+function bindEvents(el, recipients, { onChange, onShowRow }) {
+  // Tab switching
+  const tabs = el.querySelectorAll('.tab-btn');
+  const pasteContent = el.querySelector('#tab-paste-content');
+  const csvContent = el.querySelector('#tab-csv-content');
 
-      const pasteContent = el.querySelector('#tab-paste-content');
-      const csvContent = el.querySelector('#tab-csv-content');
-      if (tab === 'paste') {
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      if (target === 'paste') {
         pasteContent.style.display = 'block';
         csvContent.style.display = 'none';
       } else {
@@ -326,14 +340,14 @@ function bindEvents(el, recipients, { onChange, onShowRow, onReviewClick }) {
     });
   });
 
-  // Paste Textarea (debounced 250ms)
+  // Paste textarea with debounce
   const textarea = el.querySelector('#paste-textarea');
   if (textarea) {
-    let timer = null;
-    textarea.addEventListener('input', (e) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        const text = e.target.value;
+    let debounceTimer = null;
+    textarea.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const text = textarea.value;
         const parsed = parseNameList(text);
         if (onChange) {
           onChange({
@@ -422,12 +436,6 @@ function bindEvents(el, recipients, { onChange, onShowRow, onReviewClick }) {
         });
       }
     });
-  }
-
-  // Bottom review button
-  const btnReview = el.querySelector('#btn-review-certificates');
-  if (btnReview && onReviewClick) {
-    btnReview.addEventListener('click', onReviewClick);
   }
 }
 

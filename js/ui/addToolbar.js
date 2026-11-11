@@ -50,6 +50,8 @@ export function renderAddToolbar(el, {
         </div>
       </div>
 
+      <span class="toolbar-divider" aria-hidden="true"></span>
+
       <div class="undo-redo-group">
         <button type="button" class="btn-icon btn-sm undo-btn" id="btn-undo" aria-label="Undo" title="Undo (Ctrl+Z)" ${!canUndo ? 'disabled' : ''}>
           <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,6 +106,7 @@ export function renderAddToolbar(el, {
           if (onAddImage) {
             onAddImage({
               src: dataUrl,
+              fileName: file.name,
               naturalWidth: img.naturalWidth,
               naturalHeight: img.naturalHeight
             });

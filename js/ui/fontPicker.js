@@ -69,17 +69,22 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
   let searchQuery = '';
   let selectedFamily = value || 'Great Vibes';
 
+  const previewSample = (sampleText && sampleText.trim() ? sampleText.trim() : 'Recipient Name')
+    .replace(/\{[^}]+\}/g, 'Recipient Name');
+
   popover.innerHTML = `
     ${isMobile ? '<div class="font-picker-drag-handle" aria-hidden="true"></div>' : ''}
     <div class="font-picker-header">
       <input type="text" class="font-picker-search" placeholder="Search 122 fonts..." aria-label="Search fonts" />
       <button type="button" class="font-picker-close-btn" aria-label="Close font picker">&times;</button>
     </div>
-    <div class="font-picker-chips" role="tablist" aria-label="Font categories">
-      <button type="button" class="font-picker-chip active" data-cat="all">All</button>
-      ${FONT_CATEGORIES.map(c => `
-        <button type="button" class="font-picker-chip" data-cat="${c.id}">${c.label}</button>
-      `).join('')}
+    <div class="font-picker-chips-wrap">
+      <div class="font-picker-chips" role="tablist" aria-label="Font categories">
+        <button type="button" class="font-picker-chip active" data-cat="all">All</button>
+        ${FONT_CATEGORIES.map(c => `
+          <button type="button" class="font-picker-chip" data-cat="${c.id}">${c.label}</button>
+        `).join('')}
+      </div>
     </div>
     <div class="font-picker-list" role="listbox" id="font-picker-listbox"></div>
   `;
@@ -92,6 +97,11 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
   const chipsContainer = popover.querySelector('.font-picker-chips');
   const listbox = popover.querySelector('#font-picker-listbox');
 
+  const activeInitialChip = chipsContainer.querySelector('.font-picker-chip.active');
+  if (activeInitialChip && typeof activeInitialChip.scrollIntoView === 'function') {
+    activeInitialChip.scrollIntoView({ inline: 'center', block: 'nearest' });
+  }
+
   let observer = null;
   if (typeof IntersectionObserver !== 'undefined') {
     observer = new IntersectionObserver((entries) => {
@@ -99,7 +109,7 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
         if (entry.isIntersecting) {
           const family = entry.target.getAttribute('data-family');
           if (family) {
-            loadFontPreview(family, sampleText || family);
+            loadFontPreview(family, previewSample || family);
           }
           observer.unobserve(entry.target);
         }
@@ -156,7 +166,7 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
     btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     btn.setAttribute('data-family', font.family);
 
-    const preview = sampleText && sampleText.trim() ? sampleText.trim() : font.family;
+    const preview = previewSample || font.family;
     const catLabel = FONT_CATEGORIES.find(c => c.id === font.category)?.label || font.category || '';
 
     btn.innerHTML = `
@@ -183,7 +193,7 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
     if (observer) {
       observer.observe(btn);
     } else {
-      loadFontPreview(font.family, sampleText || font.family);
+      loadFontPreview(font.family, previewSample || font.family);
     }
 
     return btn;
@@ -251,6 +261,9 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
     chip.classList.add('active');
     selectedCategory = chip.getAttribute('data-cat') || 'all';
     renderList();
+    if (typeof chip.scrollIntoView === 'function') {
+      chip.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+    }
   });
 
   closeBtn.addEventListener('click', close);

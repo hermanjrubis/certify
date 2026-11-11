@@ -78,6 +78,7 @@ class CertifyApp {
     this.leftPanelMount = document.querySelector('#left-panel-mount');
     this.rightPanelMount = document.querySelector('#right-panel-mount');
     this.rowSwitcherMount = document.querySelector('#row-switcher-mount');
+    this.addToolbarMount = document.querySelector('#add-toolbar-mount');
 
     this.mobileStepIndicator = document.querySelector('#mobile-step-indicator');
     this.mobileProgressFill = document.querySelector('#mobile-progress-fill');
@@ -317,7 +318,7 @@ class CertifyApp {
     this.select(newLayer.id);
   }
 
-  handleAddImage({ src, naturalWidth, naturalHeight }) {
+  handleAddImage({ src, naturalWidth, naturalHeight, fileName }) {
     const tplW = this.state.project.template?.width || 2000;
     const tplH = this.state.project.template?.height || 1414;
     const aspect = tplW / tplH;
@@ -333,7 +334,8 @@ class CertifyApp {
 
     const newLayer = createImageLayer({ src, naturalWidth, naturalHeight }, aspect, {
       xPct: slot.xPct,
-      yPct: slot.yPct
+      yPct: slot.yPct,
+      fileName: fileName || 'image.png'
     });
     this.loadImageLayer(newLayer.id, src);
     this.updateProject(p => ({
@@ -613,10 +615,35 @@ class CertifyApp {
       activeStep = 4;
       done = [1, 2, 3];
     }
-    renderStepper(this.stepperMount, activeStep, done);
+    renderStepper(this.stepperMount, activeStep, done, {
+      onStepClick: (stepNum) => {
+        if (stepNum === 2) {
+          if (this.state.view === 'review') {
+            this.switchView('editing');
+          }
+          if (this.leftPanelMount) {
+            this.leftPanelMount.scrollIntoView({ behavior: 'smooth' });
+          }
+        } else if (stepNum === 3) {
+          if (this.state.view === 'review') {
+            this.switchView('editing');
+          }
+          if (this.rightPanelMount) {
+            this.rightPanelMount.scrollIntoView({ behavior: 'smooth' });
+            const ta = this.rightPanelMount.querySelector('#paste-textarea');
+            if (ta) ta.focus();
+          }
+        } else if (stepNum === 4) {
+          if (hasTemplate && rowCount > 0) {
+            this.switchView('review');
+          }
+        }
+      }
+    });
 
     // Primary button
     if (this.btnReviewDownload) {
+      this.btnReviewDownload.style.display = (this.state.view === 'review') ? 'none' : '';
       this.btnReviewDownload.disabled = !hasTemplate;
       if (!hasTemplate) {
         this.btnReviewDownload.title = 'Upload a template first';
@@ -729,15 +756,16 @@ class CertifyApp {
   renderPanels({ source = null, commit = false } = {}) {
     if (!this.leftPanelMount) return;
 
-    if (!this.addToolbarMount) {
+    if (!this.layersPanelMount) {
       this.leftPanelMount.innerHTML = `
-        <div id="add-toolbar-mount"></div>
         <div id="layers-panel-mount"></div>
         <div id="properties-panel-mount"></div>
       `;
-      this.addToolbarMount = this.leftPanelMount.querySelector('#add-toolbar-mount');
       this.layersPanelMount = this.leftPanelMount.querySelector('#layers-panel-mount');
       this.propertiesPanelMount = this.leftPanelMount.querySelector('#properties-panel-mount');
+    }
+    if (!this.addToolbarMount) {
+      this.addToolbarMount = document.querySelector('#add-toolbar-mount');
     }
 
     // Live drag from overlay: only canvas + overlay, skip panel rebuild entirely
@@ -746,10 +774,18 @@ class CertifyApp {
     }
 
     const selectedLayer = this.state.project.layers.find(l => l.id === this.state.selectedId);
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
     const row = this.state.project.recipients.rows[this.state.currentRow] || null;
+    let sampleRow = row;
+    if (!sampleRow) {
+      sampleRow = {};
+      for (const col of this.state.project.recipients.columns) {
+        sampleRow[col] = (col.toLowerCase() === nameCol.toLowerCase()) ? 'Recipient Name' : col;
+      }
+    }
     const sampleText = (selectedLayer && selectedLayer.type === 'text')
-      ? (row ? resolveText(selectedLayer.text, row) : selectedLayer.text)
-      : '';
+      ? resolveText(selectedLayer.text, sampleRow)
+      : 'Recipient Name';
 
     let bgUnderLayer = null;
     if (this.templateImageData && selectedLayer && this.state.project.template) {
@@ -976,6 +1012,10 @@ class CertifyApp {
 
     if (rowSwitcherEl && rowSwitcherEl.offsetHeight > 0) {
       stageH -= (rowSwitcherEl.offsetHeight + 8);
+    }
+    const toolbarMountEl = document.querySelector('#add-toolbar-mount');
+    if (toolbarMountEl && toolbarMountEl.offsetHeight > 0 && typeof window !== 'undefined' && window.getComputedStyle(toolbarMountEl).display !== 'none') {
+      stageH -= (toolbarMountEl.offsetHeight + 8);
     }
     if (mobileTabsEl && mobileTabsEl.offsetHeight > 0 && typeof window !== 'undefined' && window.getComputedStyle(mobileTabsEl).display !== 'none') {
       stageH -= (mobileTabsEl.offsetHeight + 6);
