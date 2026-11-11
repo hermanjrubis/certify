@@ -24,7 +24,7 @@ import { renderStepper } from './ui/stepper.js';
 import { initHeaderMenu } from './ui/headerMenu.js';
 import { renderCertificate } from './certificateRenderer.js';
 import { ensureFonts, loadFontFamily } from './fontLoader.js';
-import { extractTemplateColors } from './fontPanel.js';
+import { extractTemplateColors, sampleAverageColor } from './color/templateColors.js';
 import { renderAddToolbar } from './ui/addToolbar.js';
 import { renderLayersPanel } from './ui/layersPanel.js';
 import { renderPropertiesPanel } from './ui/propertiesPanel.js';
@@ -35,7 +35,6 @@ import { ZipExporter } from './zipExport.js';
 import { showConfirmDialog } from './ui/confirmDialog.js';
 import { computeFit, findFreeSlot } from './model/placement.js';
 import { pickReadableInk } from './color/colorMath.js';
-import { sampleAverageColor } from './color/templateColors.js';
 
 class CertifyApp {
   constructor() {

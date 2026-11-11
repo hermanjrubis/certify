@@ -6,7 +6,7 @@
 import { SIZE_STEPS } from '../model/layers.js';
 import { openFontPicker } from './fontPicker.js';
 import { getFont } from '../fonts/catalog.js';
-import { DEFAULT_SWATCHES } from '../fontPanel.js';
+import { DEFAULT_SWATCHES } from '../color/templateColors.js';
 
 export function renderPropertiesPanel(el, layer, {
   columns = ['Name'],
