@@ -767,6 +767,51 @@
   box-sizing: border-box;
 }
 
+/* Multi-Layer Overlay Engine */
+.layer-overlay-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.layer-box {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  border: 1.5px dashed transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.layer-box:hover {
+  border-color: rgba(89, 184, 77, 0.5);
+}
+
+.layer-box.bound-text {
+  border: 1.5px dashed var(--accent);
+}
+
+.layer-box.selected {
+  border: 2px solid var(--accent-strong);
+  background: rgba(58, 133, 49, 0.05);
+  z-index: 10;
+}
+
+.layer-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-strong);
+  border: 2px solid #FFFFFF;
+  border-radius: 3px;
+  box-sizing: border-box;
+  touch-action: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
 .text-box-overlay:focus,
 .text-box-overlay.is-interacting {
   border-style: solid;
