@@ -28,6 +28,8 @@ import { extractTemplateColors } from './fontPanel.js';
 import { renderAddToolbar } from './ui/addToolbar.js';
 import { renderLayersPanel } from './ui/layersPanel.js';
 import { renderPropertiesPanel } from './ui/propertiesPanel.js';
+import { renderRecipientsPanel } from './ui/recipientsPanel.js';
+import { renderRowSwitcher } from './ui/rowSwitcher.js';
 
 class CertifyApp {
   constructor() {
@@ -506,6 +508,44 @@ class CertifyApp {
       onDuplicateLayer: (id) => this.handleDuplicateLayer(id),
       onRemoveLayer: (id) => this.handleRemoveLayer(id)
     });
+
+    // Render Right Panel (Recipients)
+    if (this.rightPanelMount) {
+      renderRecipientsPanel(this.rightPanelMount, this.state.project.recipients, {
+        layers: this.state.project.layers,
+        reports: this.currentReports,
+        currentRow: this.state.currentRow,
+        onChange: (newRecipients) => {
+          this.updateProject(p => ({
+            ...p,
+            recipients: newRecipients
+          }), { commit: false });
+        },
+        onShowRow: (idx) => this.setRow(idx),
+        onReviewClick: () => this.switchView('review')
+      });
+    }
+
+    // Render Canvas Row Switcher
+    if (this.rowSwitcherMount) {
+      const rows = this.state.project.recipients.rows;
+      const count = rows.length;
+      const nameCol = detectNameColumn(this.state.project.recipients.columns);
+      const currentRowObj = rows[this.state.currentRow];
+      const currentName = currentRowObj ? (currentRowObj[nameCol] || Object.values(currentRowObj)[0] || '') : '';
+
+      renderRowSwitcher(this.rowSwitcherMount, {
+        index: this.state.currentRow,
+        count,
+        label: currentName,
+        onPrev: () => this.setRow(this.state.currentRow - 1),
+        onNext: () => this.setRow(this.state.currentRow + 1),
+        onLongest: () => {
+          const idx = longestRowIndex(rows, this.state.project.layers);
+          if (idx !== -1) this.setRow(idx);
+        }
+      });
+    }
   }
 
   onSelectLayer() {
