@@ -401,6 +401,46 @@
   }
 }
 
+/* ---------- Stable header (desktop) ----------
+   Three columns: brand | steps | actions. The steps sit in the exact center
+   and nothing in the side columns (save status, the count badge) can move
+   them. The save status has a fixed-width slot so "Saving…" and
+   "Saved in this browser" don't shift the buttons either. */
+@media (min-width: 1081px) {
+  .app-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1.25rem;
+  }
+
+  .app-header-brand-group {
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .app-header-stepper-mount {
+    justify-self: center;
+  }
+
+  .app-header-actions {
+    justify-self: end;
+    flex-wrap: nowrap;
+  }
+
+  .save-status-text {
+    display: inline-block;
+    width: 9.75rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  #btn-review-badge {
+    font-variant-numeric: tabular-nums;
+    min-width: 1.75rem;
+  }
+}
+
 /* ---------- Tablet: stacked, still flat ---------- */
 @media (min-width: 761px) and (max-width: 1080px) {
   .editor-workbench-grid {
