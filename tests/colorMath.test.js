@@ -41,3 +41,4 @@ test('pickReadableInk prefers candidates with contrast >= 4.5 or falls back to b
   const ink2 = pickReadableInk('#FBF7EC', ['#F0E6C8']);
   assert.equal(ink2, '#1F2A1B');
 });
+

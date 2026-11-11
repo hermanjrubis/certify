@@ -122,3 +122,4 @@ export function pickReadableInk(bgHex, candidates = []) {
   const darkRatio = contrastRatio(normBg, '#1F2A1B');
   return whiteRatio >= darkRatio ? '#FFFFFF' : '#1F2A1B';
 }
+
