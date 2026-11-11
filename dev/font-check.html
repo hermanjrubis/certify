@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Certify Font Catalog Check</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+      background: #FBFCF8;
+      color: #1F2A1B;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.25rem;
+    }
+    .card {
+      background: white;
+      border: 1px solid #DCEAD6;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .meta {
+      font-size: 0.75rem;
+      color: #5F6B58;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .sample {
+      font-size: 1.5rem;
+      line-height: 1.4;
+      color: #1F2A1B;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>Certify Font Library (122 Fonts) Accent & Diacritic Verification</h1>
+  <div id="status">Loading fonts...</div>
+  <div class="grid" id="grid"></div>
+
+  <script type="module">
+    import { FONT_CATALOG } from '../js/fonts/catalog.js';
+    import { loadFontFamily } from '../js/fontLoader.js';
+
+    const grid = document.getElementById('grid');
+    const status = document.getElementById('status');
+    const sampleText = 'Ñiño Peñafrancia · Ma. Señora · 2026 · Hon. José Ma. Rizal';
+
+    async function init() {
+      let loaded = 0;
+      for (const font of FONT_CATALOG) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="meta">
+            <strong>${font.family}</strong>
+            <span>${font.category} ${font.weight ? `(${font.weight})` : ''}</span>
+          </div>
+          <div class="sample" style="font-family: '${font.family}', serif; font-weight: ${font.weight || 400};">
+            ${sampleText}
+          </div>
+        `;
+        grid.appendChild(card);
+        loadFontFamily(font.family).then(() => {
+          loaded++;
+          status.textContent = `Loaded ${loaded} of ${FONT_CATALOG.length} fonts...`;
+          if (loaded === FONT_CATALOG.length) {
+            status.textContent = `All ${FONT_CATALOG.length} fonts loaded successfully.`;
+          }
+        });
+      }
+    }
+    init();
+  </script>
+</body>
+</html>

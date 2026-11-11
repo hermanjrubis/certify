@@ -22,7 +22,8 @@ export function calculateAutoFitText(ctx, text, boxW, boxH, fontFamily, options 
   const {
     autoFit = true,
     minFontSizePx = 14,
-    maxFontSizePx = null
+    maxFontSizePx = null,
+    fontWeight = 400
   } = options;
 
   const trimmed = (text || '').trim();
@@ -50,7 +51,7 @@ export function calculateAutoFitText(ctx, text, boxW, boxH, fontFamily, options 
 
   // Helper to test if a single-line string fits at a given font size
   function fitsSingleLine(fontSize, str) {
-    ctx.font = `${fontSize}px "${fontFamily}", serif, sans-serif`;
+    ctx.font = `${fontWeight} ${fontSize}px "${fontFamily}", serif`;
     const metrics = ctx.measureText(str);
     return metrics.width <= allowedWidth && (fontSize * 1.15) <= allowedHeight;
   }
@@ -100,7 +101,7 @@ export function calculateAutoFitText(ctx, text, boxW, boxH, fontFamily, options 
 
     // Test 2-line fit
     function fitsTwoLines(fontSize) {
-      ctx.font = `${fontSize}px "${fontFamily}", serif, sans-serif`;
+      ctx.font = `${fontWeight} ${fontSize}px "${fontFamily}", serif`;
       const w1 = ctx.measureText(line1).width;
       const w2 = ctx.measureText(line2).width;
       const totalH = fontSize * 1.22 * 2;

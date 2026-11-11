@@ -6,27 +6,7 @@
  */
 
 import { icons } from './icons.js';
-
-export const CURATED_FONTS = [
-  // Script & Cursive
-  { name: 'Dancing Script', category: 'Script & Cursive' },
-  { name: 'Luxurious Script', category: 'Script & Cursive' },
-  { name: 'Allura', category: 'Script & Cursive' },
-  { name: 'Parisienne', category: 'Script & Cursive' },
-  { name: 'Pinyon Script', category: 'Script & Cursive' },
-  { name: 'Tangerine', category: 'Script & Cursive' },
-  { name: 'Sacramento', category: 'Script & Cursive' },
-  { name: 'Alex Brush', category: 'Script & Cursive' },
-  { name: 'Great Vibes', category: 'Script & Cursive' },
-  { name: 'Mrs Saint Delafield', category: 'Script & Cursive' },
-
-  // Elegant & Serif
-  { name: 'Cinzel', category: 'Elegant & Serif' },
-  { name: 'Playfair Display', category: 'Elegant & Serif' },
-  { name: 'Cormorant Garamond', category: 'Elegant & Serif' },
-  { name: 'EB Garamond', category: 'Elegant & Serif' },
-  { name: 'Marcellus', category: 'Elegant & Serif' }
-];
+import { FONT_CATALOG } from './fonts/catalog.js';
 
 export const DEFAULT_SWATCHES = [
   { label: 'Charcoal', hex: '#1F2A1B' },
@@ -346,26 +326,26 @@ export class FontPanel {
 
             <div class="font-dropdown-menu" id="font-dropdown-menu" role="listbox" style="display: none;">
               <div class="font-group-label">Script & Cursive</div>
-              ${CURATED_FONTS.filter(f => f.category.includes('Script')).map(f => `
+              ${FONT_CATALOG.filter(f => ['formal', 'casual', 'signature'].includes(f.category)).slice(0, 10).map(f => `
                 <button type="button" 
-                        class="font-option-item ${this.config.font === f.name ? 'selected' : ''}" 
+                        class="font-option-item ${this.config.font === f.family ? 'selected' : ''}" 
                         role="option" 
-                        data-font="${f.name}"
-                        aria-selected="${this.config.font === f.name}">
-                  <span class="font-option-name" style="font-family: '${f.name}', cursive, serif;">${f.name}</span>
-                  ${this.config.font === f.name ? `<span class="font-option-check">${icons.check(14)}</span>` : ''}
+                        data-font="${f.family}"
+                        aria-selected="${this.config.font === f.family}">
+                  <span class="font-option-name" style="font-family: '${f.family}', cursive, serif;">${f.family}</span>
+                  ${this.config.font === f.family ? `<span class="font-option-check">${icons.check(14)}</span>` : ''}
                 </button>
               `).join('')}
 
               <div class="font-group-label">Elegant & Serif</div>
-              ${CURATED_FONTS.filter(f => f.category.includes('Serif')).map(f => `
+              ${FONT_CATALOG.filter(f => ['serif', 'blackletter'].includes(f.category)).slice(0, 5).map(f => `
                 <button type="button" 
-                        class="font-option-item ${this.config.font === f.name ? 'selected' : ''}" 
+                        class="font-option-item ${this.config.font === f.family ? 'selected' : ''}" 
                         role="option" 
-                        data-font="${f.name}"
-                        aria-selected="${this.config.font === f.name}">
-                  <span class="font-option-name" style="font-family: '${f.name}', serif;">${f.name}</span>
-                  ${this.config.font === f.name ? `<span class="font-option-check">${icons.check(14)}</span>` : ''}
+                        data-font="${f.family}"
+                        aria-selected="${this.config.font === f.family}">
+                  <span class="font-option-name" style="font-family: '${f.family}', serif;">${f.family}</span>
+                  ${this.config.font === f.family ? `<span class="font-option-check">${icons.check(14)}</span>` : ''}
                 </button>
               `).join('')}
             </div>

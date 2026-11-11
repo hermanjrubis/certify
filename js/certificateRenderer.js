@@ -5,6 +5,7 @@
 
 import { calculateAutoFitText } from './autoFitText.js';
 import { resolveText } from './model/recipients.js';
+import { getFont } from './fonts/catalog.js';
 
 function resolvePlaceholderText(text) {
   if (!text) return '';
@@ -47,13 +48,17 @@ export function renderCertificate(ctx, { templateImg = null, layers = [], images
       const resolved = row === null ? resolvePlaceholderText(layer.text) : resolveText(layer.text, row);
       if (!resolved || !resolved.trim()) continue;
 
+      const fontEntry = getFont(layer.font);
+      const fontWeight = fontEntry.weight || 400;
+
       const maxFont = Math.max(10, Math.round((layer.sizePct ?? 0.75) * boxH));
       const minFont = Math.max(8, Math.round(10 * (height / 1000)));
 
-      const fit = calculateAutoFitText(ctx, resolved, boxW, boxH, layer.font, {
+      const fit = calculateAutoFitText(ctx, resolved, boxW, boxH, fontEntry.family, {
         autoFit: layer.autoFit !== false,
         minFontSizePx: minFont,
-        maxFontSizePx: maxFont
+        maxFontSizePx: maxFont,
+        fontWeight
       });
 
       const worthALook = fit.lines.length > 1 || fit.fontSize < 0.7 * maxFont;
@@ -66,7 +71,7 @@ export function renderCertificate(ctx, { templateImg = null, layers = [], images
       });
 
       ctx.save();
-      ctx.font = `${fit.fontSize}px "${layer.font}", serif`;
+      ctx.font = `${fontWeight} ${fit.fontSize}px "${fontEntry.family}", serif`;
       ctx.fillStyle = layer.color || '#1F2A1B';
       ctx.textBaseline = 'middle';
 
