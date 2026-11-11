@@ -33,6 +33,7 @@ import { renderRowSwitcher } from './ui/rowSwitcher.js';
 import { renderReviewView } from './ui/reviewView.js';
 import { ZipExporter } from './zipExport.js';
 import { showConfirmDialog } from './ui/confirmDialog.js';
+import { computeFit } from './model/placement.js';
 
 class CertifyApp {
   constructor() {
@@ -102,6 +103,20 @@ class CertifyApp {
         this.updateMobileTabUI();
       }
     });
+
+    const stageEl = document.querySelector('.canvas-stage-wrapper');
+    if (stageEl && typeof ResizeObserver !== 'undefined') {
+      let resizeRaf = null;
+      const ro = new ResizeObserver(() => {
+        if (this.state.view === 'editing') {
+          if (resizeRaf) cancelAnimationFrame(resizeRaf);
+          resizeRaf = requestAnimationFrame(() => {
+            this.renderCanvas();
+          });
+        }
+      });
+      ro.observe(stageEl);
+    }
 
     if (this.mobileTabBtns) {
       this.mobileTabBtns.forEach(btn => {
@@ -810,8 +825,12 @@ class CertifyApp {
     const tpl = this.state.project.template;
 
     if (!tpl) {
+      this.canvasViewport.style.width = '600px';
+      this.canvasViewport.style.height = '400px';
       this.previewCanvas.width = 600;
       this.previewCanvas.height = 400;
+      this.previewCanvas.style.width = '100%';
+      this.previewCanvas.style.height = '100%';
       const ctx = this.previewCanvas.getContext('2d');
       ctx.clearRect(0, 0, 600, 400);
       if (this.layerOverlay) {
@@ -820,14 +839,44 @@ class CertifyApp {
       return;
     }
 
-    const containerW = this.canvasViewport.clientWidth || 800;
-    const aspect = tpl.width / tpl.height;
-    const displayW = Math.max(300, Math.min(containerW, tpl.width));
-    const displayH = Math.round(displayW / aspect);
+    const stageEl = document.querySelector('.canvas-stage-wrapper');
+    const rowSwitcherEl = document.querySelector('#row-switcher-mount');
+    const mobileTabsEl = document.querySelector('#mobile-tabs-bar');
 
-    this.previewCanvas.width = displayW;
-    this.previewCanvas.height = displayH;
+    let stageW = stageEl ? stageEl.clientWidth : 750;
+    let stageH = stageEl ? stageEl.clientHeight : 560;
+
+    if (stageEl && typeof window !== 'undefined') {
+      const computedStyle = window.getComputedStyle(stageEl);
+      const padX = (parseFloat(computedStyle.paddingLeft) || 0) + (parseFloat(computedStyle.paddingRight) || 0);
+      const padY = (parseFloat(computedStyle.paddingTop) || 0) + (parseFloat(computedStyle.paddingBottom) || 0);
+      stageW -= padX;
+      stageH -= padY;
+    }
+
+    if (rowSwitcherEl && rowSwitcherEl.offsetHeight > 0) {
+      stageH -= (rowSwitcherEl.offsetHeight + 8);
+    }
+    if (mobileTabsEl && mobileTabsEl.offsetHeight > 0 && typeof window !== 'undefined' && window.getComputedStyle(mobileTabsEl).display !== 'none') {
+      stageH -= (mobileTabsEl.offsetHeight + 6);
+    }
+
+    stageW = Math.max(100, stageW);
+    stageH = Math.max(100, stageH);
+
+    const { cssW, cssH } = computeFit(stageW, stageH, tpl.width, tpl.height);
+
+    this.canvasViewport.style.width = `${cssW}px`;
+    this.canvasViewport.style.height = `${cssH}px`;
+
+    const dpr = Math.min((typeof window !== 'undefined' && window.devicePixelRatio) || 1, 2);
+    this.previewCanvas.width = Math.round(cssW * dpr);
+    this.previewCanvas.height = Math.round(cssH * dpr);
+    this.previewCanvas.style.width = '100%';
+    this.previewCanvas.style.height = '100%';
+
     const ctx = this.previewCanvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const templateImg = this.state.images.get('template') || null;
     const row = this.state.project.recipients.rows[this.state.currentRow] || null;
@@ -836,7 +885,7 @@ class CertifyApp {
       ctx,
       { templateImg, layers: this.state.project.layers, images: this.state.images },
       row,
-      { width: displayW, height: displayH }
+      { width: cssW, height: cssH }
     );
 
     this.currentReports = reports;
