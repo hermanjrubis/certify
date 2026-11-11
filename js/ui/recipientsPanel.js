@@ -122,6 +122,50 @@ export function renderRecipientsPanel(el, recipients, {
   bindEvents(el, recipients, { onChange, onShowRow, onReviewClick });
 }
 
+export function updateRecipientsDerived(el, recipients, {
+  layers = [],
+  reports = [],
+  currentRow = 0,
+  onShowRow
+} = {}) {
+  if (!el) return;
+
+  const rowCount = recipients.rows.length;
+
+  // 1. Update header label
+  const labelEl = el.querySelector('.recipients-panel-header .section-label');
+  if (labelEl) {
+    labelEl.textContent = `Recipients (${rowCount})`;
+  }
+
+  // 2. Update columns chips
+  const chipsWrapper = el.querySelector('.columns-chips');
+  if (chipsWrapper) {
+    chipsWrapper.innerHTML = recipients.columns.map(c => `
+      <span class="column-pill">${escapeHtml(c)}</span>
+    `).join('');
+  }
+
+  // 3. Update table preview
+  const tableWrapper = el.querySelector('#table-preview-wrapper');
+  if (tableWrapper) {
+    renderTablePreview(tableWrapper, recipients, currentRow, onShowRow);
+  }
+
+  // 4. Update data checks
+  const checksContainer = el.querySelector('#checks-list-container');
+  if (checksContainer) {
+    renderChecksList(checksContainer, recipients, layers, reports, onShowRow);
+  }
+
+  // 5. Update review footer button
+  const reviewBtn = el.querySelector('#btn-review-certificates');
+  if (reviewBtn) {
+    reviewBtn.textContent = `Review all ${rowCount} certificates`;
+    reviewBtn.disabled = rowCount === 0;
+  }
+}
+
 function renderTablePreview(container, recipients, currentRow, onShowRow) {
   if (!container) return;
   container.innerHTML = '';

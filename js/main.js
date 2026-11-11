@@ -28,7 +28,7 @@ import { extractTemplateColors } from './fontPanel.js';
 import { renderAddToolbar } from './ui/addToolbar.js';
 import { renderLayersPanel } from './ui/layersPanel.js';
 import { renderPropertiesPanel } from './ui/propertiesPanel.js';
-import { renderRecipientsPanel } from './ui/recipientsPanel.js';
+import { renderRecipientsPanel, updateRecipientsDerived } from './ui/recipientsPanel.js';
 import { renderRowSwitcher } from './ui/rowSwitcher.js';
 import { renderReviewView } from './ui/reviewView.js';
 import { ZipExporter } from './zipExport.js';
@@ -146,7 +146,7 @@ class CertifyApp {
           this.updateProject(p => ({
             ...p,
             layers: removeLayer(p.layers, id)
-          }), { commit });
+          }), { commit, source: 'overlay' });
           if (this.state.selectedId === id) {
             this.select(this.state.project.layers[0]?.id || null);
           }
@@ -154,7 +154,7 @@ class CertifyApp {
           this.updateProject(p => ({
             ...p,
             layers: updateLayer(p.layers, id, patch)
-          }), { commit });
+          }), { commit, source: 'overlay' });
         }
       }
     });
@@ -260,7 +260,7 @@ class CertifyApp {
     this.updateProject(p => ({
       ...p,
       layers: addLayer(p.layers, newLayer)
-    }), { commit: true });
+    }), { commit: true, source: 'toolbar' });
     this.select(newLayer.id);
   }
 
@@ -273,7 +273,7 @@ class CertifyApp {
     this.updateProject(p => ({
       ...p,
       layers: addLayer(p.layers, newLayer)
-    }), { commit: true });
+    }), { commit: true, source: 'toolbar' });
     this.select(newLayer.id);
   }
 
@@ -282,7 +282,7 @@ class CertifyApp {
     this.updateProject(p => ({
       ...p,
       layers: addLayer(p.layers, newLayer)
-    }), { commit: true });
+    }), { commit: true, source: 'toolbar' });
     this.select(newLayer.id);
   }
 
@@ -290,7 +290,7 @@ class CertifyApp {
     this.updateProject(p => ({
       ...p,
       layers: moveLayer(p.layers, id, delta)
-    }), { commit: true });
+    }), { commit: true, source: 'layers' });
   }
 
   handleDuplicateLayer(id) {
@@ -299,7 +299,7 @@ class CertifyApp {
       this.updateProject(p => ({
         ...p,
         layers: newLayers
-      }), { commit: true });
+      }), { commit: true, source: 'layers' });
       this.select(newId);
     }
   }
@@ -308,7 +308,7 @@ class CertifyApp {
     this.updateProject(p => ({
       ...p,
       layers: removeLayer(p.layers, id)
-    }), { commit: true });
+    }), { commit: true, source: 'layers' });
     this.select(this.state.project.layers[0]?.id || null);
   }
 
@@ -385,7 +385,7 @@ class CertifyApp {
     this.storage.exportJSON(this.state.project, filename);
   }
 
-  updateProject(mutator, { commit = true } = {}) {
+  updateProject(mutator, { commit = false, source = null } = {}) {
     const updated = mutator(this.state.project);
     if (updated) {
       this.state.project = updated;
@@ -396,7 +396,7 @@ class CertifyApp {
     }
 
     this.triggerSaveDebounced(false);
-    this.render();
+    this.render({ source, commit });
   }
 
   select(id) {
@@ -608,7 +608,7 @@ class CertifyApp {
     });
   }
 
-  renderPanels() {
+  renderPanels({ source = null, commit = false } = {}) {
     if (!this.leftPanelMount) return;
 
     if (!this.addToolbarMount) {
@@ -621,6 +621,93 @@ class CertifyApp {
       this.layersPanelMount = this.leftPanelMount.querySelector('#layers-panel-mount');
       this.propertiesPanelMount = this.leftPanelMount.querySelector('#properties-panel-mount');
     }
+
+    // Live drag from overlay: only canvas + overlay, skip panel rebuild entirely
+    if (source === 'overlay' && !commit) {
+      return;
+    }
+
+    const selectedLayer = this.state.project.layers.find(l => l.id === this.state.selectedId);
+    const row = this.state.project.recipients.rows[this.state.currentRow] || null;
+    const sampleText = (selectedLayer && selectedLayer.type === 'text')
+      ? (row ? resolveText(selectedLayer.text, row) : selectedLayer.text)
+      : '';
+
+    // If change came from properties: rebuild layers list + toolbar (if commit) + update recipients derived
+    if (source === 'properties') {
+      if (commit) {
+        renderAddToolbar(this.addToolbarMount, {
+          onAddText: () => this.handleAddText(),
+          onAddImage: (imgData) => this.handleAddImage(imgData),
+          onAddShape: (shape) => this.handleAddShape(shape),
+          onUndo: () => this.handleUndo(),
+          onRedo: () => this.handleRedo(),
+          canUndo: this.history.canUndo(),
+          canRedo: this.history.canRedo()
+        });
+      }
+
+      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
+        onSelect: (id) => this.select(id)
+      });
+
+      if (this.rightPanelMount) {
+        updateRecipientsDerived(this.rightPanelMount, this.state.project.recipients, {
+          layers: this.state.project.layers,
+          reports: this.currentReports,
+          currentRow: this.state.currentRow,
+          onShowRow: (idx) => this.setRow(idx)
+        });
+      }
+
+      this.updateRowSwitcher();
+      this.updateMobileTabUI();
+      return;
+    }
+
+    // If change came from recipients: update recipients panel in-place, don't destroy textarea
+    if (source === 'recipients') {
+      if (this.rightPanelMount) {
+        updateRecipientsDerived(this.rightPanelMount, this.state.project.recipients, {
+          layers: this.state.project.layers,
+          reports: this.currentReports,
+          currentRow: this.state.currentRow,
+          onShowRow: (idx) => this.setRow(idx)
+        });
+      }
+
+      // Rebuild properties panel for updated column choices
+      renderPropertiesPanel(this.propertiesPanelMount, selectedLayer, {
+        columns: this.state.project.recipients.columns,
+        templateColors: this.templateColors,
+        sampleText,
+        onChange: (patch, { commit }) => {
+          if (this.state.selectedId) {
+            this.updateProject(p => ({
+              ...p,
+              layers: updateLayer(p.layers, this.state.selectedId, patch)
+            }), { commit, source: 'properties' });
+          }
+        },
+        onMoveLayer: (id, delta) => this.handleMoveLayer(id, delta),
+        onDuplicateLayer: (id) => this.handleDuplicateLayer(id),
+        onRemoveLayer: (id) => this.handleRemoveLayer(id)
+      });
+
+      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
+        onSelect: (id) => this.select(id)
+      });
+
+      this.updateRowSwitcher();
+      this.updateMobileTabUI();
+      return;
+    }
+
+    // Safety net: capture active element before full rebuild
+    const activeEl = document.activeElement;
+    const activeId = activeEl?.id || null;
+    const selStart = (activeEl && typeof activeEl.selectionStart === 'number') ? activeEl.selectionStart : null;
+    const selEnd = (activeEl && typeof activeEl.selectionEnd === 'number') ? activeEl.selectionEnd : null;
 
     renderAddToolbar(this.addToolbarMount, {
       onAddText: () => this.handleAddText(),
@@ -636,12 +723,6 @@ class CertifyApp {
       onSelect: (id) => this.select(id)
     });
 
-    const selectedLayer = this.state.project.layers.find(l => l.id === this.state.selectedId);
-    const row = this.state.project.recipients.rows[this.state.currentRow] || null;
-    const sampleText = (selectedLayer && selectedLayer.type === 'text')
-      ? (row ? resolveText(selectedLayer.text, row) : selectedLayer.text)
-      : '';
-
     renderPropertiesPanel(this.propertiesPanelMount, selectedLayer, {
       columns: this.state.project.recipients.columns,
       templateColors: this.templateColors,
@@ -651,7 +732,7 @@ class CertifyApp {
           this.updateProject(p => ({
             ...p,
             layers: updateLayer(p.layers, this.state.selectedId, patch)
-          }), { commit });
+          }), { commit, source: 'properties' });
         }
       },
       onMoveLayer: (id, delta) => this.handleMoveLayer(id, delta),
@@ -669,45 +750,59 @@ class CertifyApp {
           this.updateProject(p => ({
             ...p,
             recipients: newRecipients
-          }), { commit: false });
+          }), { commit: false, source: 'recipients' });
         },
         onShowRow: (idx) => this.setRow(idx),
         onReviewClick: () => this.switchView('review')
       });
     }
 
-    // Render Canvas Row Switcher
-    if (this.rowSwitcherMount) {
-      const rows = this.state.project.recipients.rows;
-      const count = rows.length;
-      const nameCol = detectNameColumn(this.state.project.recipients.columns);
-      const currentRowObj = rows[this.state.currentRow];
-      const currentName = currentRowObj ? (currentRowObj[nameCol] || Object.values(currentRowObj)[0] || '') : '';
-
-      renderRowSwitcher(this.rowSwitcherMount, {
-        index: this.state.currentRow,
-        count,
-        label: currentName,
-        onPrev: () => this.setRow(this.state.currentRow - 1),
-        onNext: () => this.setRow(this.state.currentRow + 1),
-        onLongest: () => {
-          const idx = longestRowIndex(rows, this.state.project.layers);
-          if (idx !== -1) this.setRow(idx);
-        }
-      });
-    }
-
+    this.updateRowSwitcher();
     this.updateMobileTabUI();
+
+    // Safety net: restore focus if element still exists
+    if (activeId) {
+      const restoredEl = document.getElementById(activeId);
+      if (restoredEl && typeof restoredEl.focus === 'function') {
+        restoredEl.focus();
+        if (selStart !== null && selEnd !== null && typeof restoredEl.setSelectionRange === 'function') {
+          try {
+            restoredEl.setSelectionRange(selStart, selEnd);
+          } catch {}
+        }
+      }
+    }
+  }
+
+  updateRowSwitcher() {
+    if (!this.rowSwitcherMount) return;
+    const rows = this.state.project.recipients.rows;
+    const count = rows.length;
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
+    const currentRowObj = rows[this.state.currentRow];
+    const currentName = currentRowObj ? (currentRowObj[nameCol] || Object.values(currentRowObj)[0] || '') : '';
+
+    renderRowSwitcher(this.rowSwitcherMount, {
+      index: this.state.currentRow,
+      count,
+      label: currentName,
+      onPrev: () => this.setRow(this.state.currentRow - 1),
+      onNext: () => this.setRow(this.state.currentRow + 1),
+      onLongest: () => {
+        const idx = longestRowIndex(rows, this.state.project.layers);
+        if (idx !== -1) this.setRow(idx);
+      }
+    });
   }
 
   onSelectLayer() {
     this.renderPanels();
   }
 
-  render() {
+  render({ source = null, commit = false } = {}) {
     this.updateHeader();
     this.renderCanvas();
-    this.renderPanels();
+    this.renderPanels({ source, commit });
   }
 
   renderCanvas() {
