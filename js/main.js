@@ -32,6 +32,7 @@ import { renderRecipientsPanel } from './ui/recipientsPanel.js';
 import { renderRowSwitcher } from './ui/rowSwitcher.js';
 import { renderReviewView } from './ui/reviewView.js';
 import { ZipExporter } from './zipExport.js';
+import { showConfirmDialog } from './ui/confirmDialog.js';
 
 class CertifyApp {
   constructor() {
@@ -344,9 +345,15 @@ class CertifyApp {
     this.triggerSaveDebounced(true);
   }
 
-  handleNewProject() {
+  async handleNewProject() {
     if (this.state.project.template) {
-      const ok = confirm('Start a new project? Your current template and layers will be cleared.');
+      const ok = await showConfirmDialog({
+        title: 'Start a new project?',
+        message: 'Your current template and layers will be cleared. (Recipient data will be preserved).',
+        confirmLabel: 'Start new project',
+        cancelLabel: 'Keep working',
+        danger: true
+      });
       if (!ok) return;
     }
 

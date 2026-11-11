@@ -12,6 +12,7 @@ import {
   findMissingTokens,
   longestRowIndex
 } from '../model/recipients.js';
+import { showConfirmDialog } from './confirmDialog.js';
 
 export const SAMPLE_ROWS = [
   { Name: 'Jade Cataya', Course: 'UI/UX Design', Date: 'March 2026' },
@@ -359,9 +360,15 @@ function bindEvents(el, recipients, { onChange, onShowRow, onReviewClick }) {
 
   const btnClear = el.querySelector('#btn-clear-recipients');
   if (btnClear) {
-    btnClear.addEventListener('click', () => {
+    btnClear.addEventListener('click', async () => {
       if (recipients.rows.length === 0) return;
-      const ok = confirm('Clear all recipients?');
+      const ok = await showConfirmDialog({
+        title: 'Clear recipients?',
+        message: 'This will remove all current recipient names and table data.',
+        confirmLabel: 'Clear all',
+        cancelLabel: 'Keep recipients',
+        danger: true
+      });
       if (ok && onChange) {
         onChange({
           columns: ['Name'],

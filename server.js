@@ -20,11 +20,54 @@ const MIME_TYPES = {
   '.svg': 'image/svg+xml'
 };
 
-const server = http.createServer((req, res) => {
-  let reqPath = req.url.split('?')[0];
-  if (reqPath === '/') reqPath = '/index.html';
+/**
+ * Resolves an HTTP request URL to a safe filesystem path within rootDir.
+ * Rejects path traversal attempts with null.
+ * Maps '/' to '/index.html' and clean URLs like '/app' to '/app.html'.
+ */
+export function resolveSafePath(rootDir, urlPath) {
+  if (!urlPath || typeof urlPath !== 'string') return null;
 
-  const filePath = path.join(__dirname, reqPath);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(urlPath);
+  } catch {
+    return null;
+  }
+
+  // Null byte injection check
+  if (decoded.includes('\0')) return null;
+
+  // Strip query string and hash
+  let cleanPath = decoded.split('?')[0].split('#')[0];
+
+  if (cleanPath === '/' || cleanPath === '') {
+    cleanPath = '/index.html';
+  } else if (cleanPath === '/app') {
+    cleanPath = '/app.html';
+  }
+
+  const root = path.resolve(rootDir);
+  // Ensure path is relative to root without leading slashes confusing resolve
+  const safeRelative = cleanPath.replace(/^[/\\]+/, '');
+  const resolved = path.resolve(root, safeRelative);
+
+  const rel = path.relative(root, resolved);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    return null;
+  }
+
+  return resolved;
+}
+
+export const server = http.createServer((req, res) => {
+  const filePath = resolveSafePath(__dirname, req.url);
+  if (!filePath) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('403 Forbidden');
+    return;
+  }
+
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
@@ -44,6 +87,9 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Certify static server running at http://localhost:${PORT}/`);
-});
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectRun) {
+  server.listen(PORT, () => {
+    console.log(`Certify static server running at http://localhost:${PORT}/`);
+  });
+}

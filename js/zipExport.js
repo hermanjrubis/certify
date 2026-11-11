@@ -172,6 +172,7 @@ export class ZipExporter {
   showProgressModal(total) {
     this.closeModal();
 
+    this.prevActiveElement = typeof document !== 'undefined' ? document.activeElement : null;
     this.modalEl = document.createElement('div');
     this.modalEl.className = 'modal-backdrop active';
     this.modalEl.id = 'export-progress-modal';
@@ -216,14 +217,13 @@ export class ZipExporter {
       this.closeModal();
     });
 
-    const handleKeyDown = (e) => {
+    this.handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         this.isCancelled = true;
         this.closeModal();
-        document.removeEventListener('keydown', handleKeyDown);
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', this.handleKeyDown);
     cancelBtn.focus();
   }
 
@@ -289,9 +289,17 @@ export class ZipExporter {
   }
 
   closeModal() {
+    if (this.handleKeyDown) {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      this.handleKeyDown = null;
+    }
     if (this.modalEl) {
       this.modalEl.remove();
       this.modalEl = null;
+    }
+    if (this.prevActiveElement && typeof this.prevActiveElement.focus === 'function') {
+      this.prevActiveElement.focus();
+      this.prevActiveElement = null;
     }
   }
 }

@@ -290,23 +290,43 @@ function openFullSizeModal(project, images, row, rawName) {
   modal.appendChild(card);
   document.body.appendChild(modal);
 
+  const prevActiveElement = document.activeElement;
+  const btnClose = card.querySelector('#btn-close-fullsize');
+  const btnDownload = card.querySelector('#btn-download-single-png');
+
   function closeModal() {
     document.removeEventListener('keydown', handleKeyDown);
     if (modal.parentNode) modal.parentNode.removeChild(modal);
+    if (prevActiveElement && typeof prevActiveElement.focus === 'function') {
+      prevActiveElement.focus();
+    }
   }
 
   function handleKeyDown(e) {
     if (e.key === 'Escape') {
+      e.preventDefault();
       closeModal();
+    } else if (e.key === 'Tab') {
+      const focusable = [btnDownload, btnClose];
+      if (e.shiftKey && document.activeElement === focusable[0]) {
+        e.preventDefault();
+        focusable[1].focus();
+      } else if (!e.shiftKey && document.activeElement === focusable[1]) {
+        e.preventDefault();
+        focusable[0].focus();
+      }
     }
   }
+
+  document.addEventListener('keydown', handleKeyDown);
+  if (btnClose) btnClose.focus();
 
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
   });
-  card.querySelector('#btn-close-fullsize').addEventListener('click', closeModal);
+  btnClose.addEventListener('click', closeModal);
 
-  card.querySelector('#btn-download-single-png').addEventListener('click', () => {
+  btnDownload.addEventListener('click', () => {
     // Render full native resolution canvas for export
     const fullCanvas = document.createElement('canvas');
     fullCanvas.width = tplW;
