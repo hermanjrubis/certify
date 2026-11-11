@@ -1922,6 +1922,249 @@
 }
 
 /* ==========================================================================
+   Mobile-Specific Elements (Desktop Hidden)
+   ========================================================================== */
+.mobile-step-indicator {
+  display: none;
+}
+
+.mobile-progress-bar {
+  display: none;
+}
+
+.mobile-tabs-bar {
+  display: none;
+}
+
+.mobile-sticky-bottom-bar {
+  display: none;
+}
+
+/* ==========================================================================
+   Phone Layout for the Editor (max-width: 760px)
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app-header {
+    padding: 0.4rem 0.75rem;
+    min-height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .app-header-brand-group {
+    gap: 0.35rem;
+  }
+
+  .brand-logo-img {
+    height: 30px;
+    max-height: 30px;
+  }
+
+  .project-title-input {
+    width: 105px;
+    font-size: 0.8125rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  .app-header-stepper-mount {
+    display: none !important;
+  }
+
+  .save-status-text {
+    display: none !important;
+  }
+
+  .app-header #btn-review-download {
+    display: none !important;
+  }
+
+  .mobile-step-indicator {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  /* 4px Mobile Progress Bar */
+  .mobile-progress-bar {
+    display: block;
+    width: 100%;
+    height: 4px;
+    background: var(--border-hairline);
+    position: sticky;
+    top: 52px;
+    z-index: 999;
+  }
+
+  .mobile-progress-fill {
+    height: 100%;
+    background: var(--accent-strong);
+    transition: width 0.25s ease;
+  }
+
+  /* Frame and Container */
+  .app-main {
+    padding: 0;
+    margin: 0;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .editor-frame {
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: calc(100vh - 56px);
+  }
+
+  .editor-workbench-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  /* Pinned Canvas Stage at Top */
+  .canvas-stage-wrapper {
+    order: -1;
+    position: sticky;
+    top: 56px;
+    z-index: 150;
+    background: var(--bg-card);
+    border: none;
+    border-bottom: 1px solid var(--border-hairline);
+    border-radius: 0;
+    padding: 0.5rem 0.75rem 0;
+    min-height: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .canvas-viewport-container {
+    max-height: 180px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #preview-canvas {
+    max-height: 180px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .row-switcher-bar {
+    margin-top: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Mobile Tabs Bar */
+  .mobile-tabs-bar {
+    display: flex;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-hairline);
+    margin-top: 0.35rem;
+    padding: 0;
+  }
+
+  .mobile-tab-btn {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all var(--transition-fast);
+  }
+
+  .mobile-tab-btn.active {
+    color: var(--accent-strong);
+    font-weight: 600;
+    border-bottom-color: var(--accent-strong);
+  }
+
+  /* Side panels on phone */
+  .editor-side-panel {
+    padding: 0.75rem 0.75rem 4.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .properties-panel-container {
+    border: none;
+    padding: 0;
+  }
+
+  .recipients-panel-container {
+    border: none;
+    padding: 0;
+  }
+
+  /* Sticky Bottom Bar */
+  .mobile-sticky-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.65rem 1rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-hairline);
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08);
+    z-index: 300;
+  }
+
+  #btn-mobile-review-download {
+    height: 2.75rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Review View Responsive */
+  .review-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 0.75rem;
+  }
+
+  .review-side-card {
+    order: -1;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .review-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* Minimum 44px touch target on interactive elements */
+  .btn, .btn-icon, .font-picker-item, .tab-btn, .mobile-tab-btn {
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .layer-handle {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* ==========================================================================
    Upload View State (Empty State)
    ========================================================================== */
 .upload-view-container {

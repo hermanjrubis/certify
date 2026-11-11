@@ -15,7 +15,7 @@ import {
   moveLayer,
   duplicateLayer
 } from './model/layers.js';
-import { detectNameColumn, resolveText } from './model/recipients.js';
+import { detectNameColumn, resolveText, longestRowIndex } from './model/recipients.js';
 import { createHistory } from './model/history.js';
 import { ProjectStorage } from './projectStorage.js';
 import { TemplateUpload } from './templateUpload.js';
@@ -49,6 +49,7 @@ class CertifyApp {
     this.saveTimeout = null;
     this.currentReports = [];
     this.templateColors = [];
+    this.mobileTab = 'layers'; // 'layers' | 'style' | 'data'
 
     this.initDOM();
     this.initOverlay();
@@ -74,6 +75,14 @@ class CertifyApp {
     this.rightPanelMount = document.querySelector('#right-panel-mount');
     this.rowSwitcherMount = document.querySelector('#row-switcher-mount');
 
+    this.mobileStepIndicator = document.querySelector('#mobile-step-indicator');
+    this.mobileProgressFill = document.querySelector('#mobile-progress-fill');
+    this.mobileTabsBar = document.querySelector('#mobile-tabs-bar');
+    this.mobileTabBtns = document.querySelectorAll('.mobile-tab-btn');
+    this.mobileDataCount = document.querySelector('#mobile-data-count');
+    this.mobileReviewBadge = document.querySelector('#mobile-review-badge');
+    this.btnMobileReviewDownload = document.querySelector('#btn-mobile-review-download');
+
     this.canvasViewport = document.querySelector('#canvas-viewport-container');
     this.previewCanvas = document.querySelector('#preview-canvas');
 
@@ -85,12 +94,31 @@ class CertifyApp {
       onError: (msg) => alert(msg)
     });
 
-    // Window resize observer for canvas responsive scaling
+    // Window resize observer for canvas responsive scaling & mobile layout
     window.addEventListener('resize', () => {
       if (this.state.view === 'editing') {
         this.renderCanvas();
+        this.updateMobileTabUI();
       }
     });
+
+    if (this.mobileTabBtns) {
+      this.mobileTabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const tab = e.currentTarget.dataset.tab;
+          if (tab) {
+            this.setMobileTab(tab);
+          }
+        });
+      });
+    }
+
+    if (this.btnMobileReviewDownload) {
+      this.btnMobileReviewDownload.addEventListener('click', () => {
+        if (!this.state.project.template) return;
+        this.switchView('review');
+      });
+    }
 
     if (this.projectTitleInput) {
       this.projectTitleInput.addEventListener('input', (e) => {
@@ -479,6 +507,87 @@ class CertifyApp {
     if (this.headerMenu) {
       this.headerMenu.setCanExport(hasTemplate);
     }
+
+    // Mobile step indicator & progress bar
+    if (this.mobileStepIndicator) {
+      if (this.state.view === 'upload') {
+        this.mobileStepIndicator.textContent = 'Step 1 of 4 · Template';
+      } else if (this.state.view === 'editing') {
+        this.mobileStepIndicator.textContent = rowCount > 0 
+          ? 'Step 3 of 4 · Recipients' 
+          : 'Step 2 of 4 · Design';
+      } else if (this.state.view === 'review') {
+        this.mobileStepIndicator.textContent = 'Step 4 of 4 · Review';
+      }
+    }
+
+    if (this.mobileProgressFill) {
+      let progressPct = 25;
+      if (this.state.view === 'upload') {
+        progressPct = 25;
+      } else if (this.state.view === 'editing') {
+        progressPct = rowCount > 0 ? 75 : 50;
+      } else if (this.state.view === 'review') {
+        progressPct = 100;
+      }
+      this.mobileProgressFill.style.width = `${progressPct}%`;
+    }
+
+    if (this.mobileDataCount) {
+      this.mobileDataCount.textContent = rowCount;
+    }
+
+    if (this.mobileReviewBadge) {
+      this.mobileReviewBadge.textContent = rowCount;
+    }
+
+    if (this.btnMobileReviewDownload) {
+      this.btnMobileReviewDownload.disabled = !hasTemplate;
+    }
+  }
+
+  setMobileTab(tab) {
+    this.mobileTab = tab;
+    this.updateMobileTabUI();
+  }
+
+  updateMobileTabUI() {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 760;
+
+    if (this.mobileTabBtns) {
+      this.mobileTabBtns.forEach(btn => {
+        const active = btn.dataset.tab === this.mobileTab;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+    }
+
+    if (!this.leftPanelMount || !this.rightPanelMount) return;
+
+    if (isMobile) {
+      if (this.mobileTab === 'layers') {
+        this.leftPanelMount.style.display = 'block';
+        this.rightPanelMount.style.display = 'none';
+        if (this.addToolbarMount) this.addToolbarMount.style.display = '';
+        if (this.layersPanelMount) this.layersPanelMount.style.display = '';
+        if (this.propertiesPanelMount) this.propertiesPanelMount.style.display = 'none';
+      } else if (this.mobileTab === 'style') {
+        this.leftPanelMount.style.display = 'block';
+        this.rightPanelMount.style.display = 'none';
+        if (this.addToolbarMount) this.addToolbarMount.style.display = 'none';
+        if (this.layersPanelMount) this.layersPanelMount.style.display = 'none';
+        if (this.propertiesPanelMount) this.propertiesPanelMount.style.display = '';
+      } else if (this.mobileTab === 'data') {
+        this.leftPanelMount.style.display = 'none';
+        this.rightPanelMount.style.display = 'block';
+      }
+    } else {
+      this.leftPanelMount.style.display = '';
+      this.rightPanelMount.style.display = '';
+      if (this.addToolbarMount) this.addToolbarMount.style.display = '';
+      if (this.layersPanelMount) this.layersPanelMount.style.display = '';
+      if (this.propertiesPanelMount) this.propertiesPanelMount.style.display = '';
+    }
   }
 
   triggerSaveDebounced(immediate = false) {
@@ -580,6 +689,8 @@ class CertifyApp {
         }
       });
     }
+
+    this.updateMobileTabUI();
   }
 
   onSelectLayer() {
