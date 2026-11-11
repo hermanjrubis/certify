@@ -16,8 +16,10 @@ import {
   duplicateLayer,
   moveLayerToEdge,
   alignPatch,
-  pasteLayer
+  pasteLayer,
+  layersUseColumn
 } from './model/layers.js';
+import { showToast } from './ui/toast.js';
 import { detectNameColumn, resolveText, longestRowIndex } from './model/recipients.js';
 import { createHistory } from './model/history.js';
 import { ProjectStorage } from './projectStorage.js';
@@ -166,6 +168,7 @@ class CertifyApp {
       onChange: (id, patch, { commit }) => {
         if (!patch) {
           // Deletion
+          const gone = this.state.project.layers.find(l => l.id === id);
           this.updateProject(p => ({
             ...p,
             layers: removeLayer(p.layers, id)
@@ -173,6 +176,7 @@ class CertifyApp {
           if (this.state.selectedId === id) {
             this.select(this.state.project.layers[0]?.id || null);
           }
+          if (commit) this.notifyDeleted(gone);
         } else {
           this.updateProject(p => ({
             ...p,
@@ -564,11 +568,74 @@ class CertifyApp {
   }
 
   handleRemoveLayer(id) {
+    const gone = this.state.project.layers.find(l => l.id === id);
     this.updateProject(p => ({
       ...p,
       layers: removeLayer(p.layers, id)
     }), { commit: true, source: 'layers' });
     this.select(this.state.project.layers[0]?.id || null);
+    this.notifyDeleted(gone);
+  }
+
+  /** Toast after a delete, with Undo. Warns when names will stop printing. */
+  notifyDeleted(layer) {
+    if (!layer) return;
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
+    const hadNames = layersUseColumn([layer], nameCol);
+    const namesGone = hadNames && !layersUseColumn(this.state.project.layers, nameCol);
+    showToast({
+      message: namesGone
+        ? `Deleted the name field. Names won't print.`
+        : `Deleted “${layer.name || 'layer'}”`,
+      actionLabel: 'Undo',
+      onAction: () => this.handleUndo(),
+      duration: namesGone ? 9000 : 6000
+    });
+  }
+
+  /** Readable ink for a box (in % of the template), sampled from the template. */
+  inkForBox({ xPct, yPct, wPct, hPct }) {
+    if (!this.templateImageData || !this.state.project.template) return '#1F2A1B';
+    const { width: tplW, height: tplH } = this.state.project.template;
+    const bgHex = sampleAverageColor(this.templateImageData, {
+      x: tplW * (xPct / 100),
+      y: tplH * (yPct / 100),
+      width: tplW * (wPct / 100),
+      height: tplH * (hPct / 100)
+    });
+    return pickReadableInk(bgHex, [...this.templateColors, '#1F2A1B', '#FFFFFF']);
+  }
+
+  /** Re-add a text layer that prints the recipients' name column. */
+  addNameField() {
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
+    const size = { wPct: 60, hPct: 15 };
+    const slot = findFreeSlot(this.state.project.layers, size, [
+      { xPct: 20, yPct: 45 },
+      { xPct: 20, yPct: 35 },
+      { xPct: 20, yPct: 55 }
+    ]);
+    const newLayer = createNameLayer(nameCol, {
+      xPct: slot.xPct,
+      yPct: slot.yPct,
+      color: this.inkForBox({ ...slot, ...size })
+    });
+    this.updateProject(p => ({
+      ...p,
+      layers: addLayer(p.layers, newLayer)
+    }), { commit: true, source: 'toolbar' });
+    this.select(newLayer.id);
+  }
+
+  /** Options shared by every renderLayersPanel call. */
+  layersPanelOptions() {
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
+    const hasRows = this.state.project.recipients.rows.length > 0;
+    return {
+      onSelect: (id) => this.select(id),
+      missingNameColumn: hasRows && !layersUseColumn(this.state.project.layers, nameCol) ? nameCol : null,
+      onAddNameField: () => this.addNameField()
+    };
   }
 
   loadImageLayer(layerId, src) {
@@ -1013,16 +1080,15 @@ class CertifyApp {
         });
       }
 
-      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
-        onSelect: (id) => this.select(id)
-      });
+      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, this.layersPanelOptions());
 
       if (this.rightPanelMount) {
         updateRecipientsDerived(this.rightPanelMount, this.state.project.recipients, {
           layers: this.state.project.layers,
           reports: this.currentReports,
           currentRow: this.state.currentRow,
-          onShowRow: (idx) => this.setRow(idx)
+          onShowRow: (idx) => this.setRow(idx),
+          onAddNameField: () => this.addNameField()
         });
       }
 
@@ -1038,13 +1104,15 @@ class CertifyApp {
           layers: this.state.project.layers,
           reports: this.currentReports,
           currentRow: this.state.currentRow,
-          onShowRow: (idx) => this.setRow(idx)
+          onShowRow: (idx) => this.setRow(idx),
+          onAddNameField: () => this.addNameField()
         });
       }
 
       // Rebuild properties panel for updated column choices
       renderPropertiesPanel(this.propertiesPanelMount, selectedLayer, {
         columns: this.state.project.recipients.columns,
+        layerCount: this.state.project.layers.length,
         templateColors: this.templateColors,
         sampleText,
         bgUnderLayer,
@@ -1063,9 +1131,7 @@ class CertifyApp {
         onToggleLock: (id) => this.toggleLock(id)
       });
 
-      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
-        onSelect: (id) => this.select(id)
-      });
+      renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, this.layersPanelOptions());
 
       this.updateRowSwitcher();
       this.updateMobileTabUI();
@@ -1088,12 +1154,11 @@ class CertifyApp {
       canRedo: this.history.canRedo()
     });
 
-    renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
-      onSelect: (id) => this.select(id)
-    });
+    renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, this.layersPanelOptions());
 
     renderPropertiesPanel(this.propertiesPanelMount, selectedLayer, {
       columns: this.state.project.recipients.columns,
+      layerCount: this.state.project.layers.length,
       templateColors: this.templateColors,
       sampleText,
       bgUnderLayer,
@@ -1125,6 +1190,7 @@ class CertifyApp {
           }), { commit: false, source: 'recipients' });
         },
         onShowRow: (idx) => this.setRow(idx),
+        onAddNameField: () => this.addNameField(),
         onReviewClick: () => this.switchView('review')
       });
     }
