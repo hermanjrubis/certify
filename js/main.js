@@ -694,6 +694,7 @@ class CertifyApp {
       this.state.currentRow = ((index % rowCount) + rowCount) % rowCount;
     }
     this.renderCanvas();
+    this.updateRowSwitcher();
     if (typeof this.onRowChange === 'function') {
       this.onRowChange(this.state.currentRow);
     }
