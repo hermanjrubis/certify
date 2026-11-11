@@ -252,3 +252,56 @@ export function migrateProject(raw) {
   return null;
 }
 
+
+/** Move a layer to the very top ('front') or bottom ('back') of the stack. */
+export function moveLayerToEdge(layers, id, edge) {
+  const idx = layers.findIndex(layer => layer.id === id);
+  if (idx === -1) return [...layers];
+  const result = [...layers];
+  const [item] = result.splice(idx, 1);
+  if (edge === 'front') result.push(item);
+  else result.unshift(item);
+  return result;
+}
+
+/**
+ * Position patch that aligns a layer to an edge or the center of the
+ * certificate. how: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom'.
+ */
+export function alignPatch(layer, how) {
+  const round = (v) => Number(v.toFixed(2));
+  switch (how) {
+    case 'left': return { xPct: 0 };
+    case 'center': return { xPct: round((100 - layer.wPct) / 2) };
+    case 'right': return { xPct: round(100 - layer.wPct) };
+    case 'top': return { yPct: 0 };
+    case 'middle': return { yPct: round((100 - layer.hPct) / 2) };
+    case 'bottom': return { yPct: round(100 - layer.hPct) };
+    default: return {};
+  }
+}
+
+/**
+ * Paste a copied layer: new id, unlocked, placed at (xPct, yPct) when given
+ * (centered on that point), otherwise offset 2% from the original.
+ * Always kept fully inside the certificate. Added on top of the stack.
+ */
+export function pasteLayer(layers, clip, at = null) {
+  const newId = createId();
+  let xPct = clip.xPct + 2;
+  let yPct = clip.yPct + 2;
+  if (at) {
+    xPct = at.xPct - clip.wPct / 2;
+    yPct = at.yPct - clip.hPct / 2;
+  }
+  xPct = Math.min(Math.max(0, xPct), 100 - clip.wPct);
+  yPct = Math.min(Math.max(0, yPct), 100 - clip.hPct);
+  const copy = {
+    ...clip,
+    id: newId,
+    locked: false,
+    xPct: Number(xPct.toFixed(2)),
+    yPct: Number(yPct.toFixed(2))
+  };
+  return { layers: [...layers, copy], newId };
+}

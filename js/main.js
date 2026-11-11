@@ -13,7 +13,10 @@ import {
   removeLayer,
   updateLayer,
   moveLayer,
-  duplicateLayer
+  duplicateLayer,
+  moveLayerToEdge,
+  alignPatch,
+  pasteLayer
 } from './model/layers.js';
 import { detectNameColumn, resolveText, longestRowIndex } from './model/recipients.js';
 import { createHistory } from './model/history.js';
@@ -36,6 +39,7 @@ import { showConfirmDialog } from './ui/confirmDialog.js';
 import { computeFit, findFreeSlot } from './model/placement.js';
 import { pickReadableInk } from './color/colorMath.js';
 import { startTemplateEyedropper } from './ui/eyedropper.js';
+import { openContextMenu, closeContextMenu } from './ui/contextMenu.js';
 
 class CertifyApp {
   constructor() {
@@ -158,6 +162,7 @@ class CertifyApp {
   initOverlay() {
     this.layerOverlay = new LayerOverlay(this.canvasViewport, {
       onSelect: (id) => this.select(id),
+      onContextMenu: (info) => this.openLayerMenu(info),
       onChange: (id, patch, { commit }) => {
         if (!patch) {
           // Deletion
@@ -243,20 +248,191 @@ class CertifyApp {
   bindKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
       const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) {
         return;
       }
+      if (this.state.view !== 'editing') return;
 
-      if (e.ctrlKey || e.metaKey) {
-        if ((e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
-          e.preventDefault();
-          this.handleUndo();
-        } else if (((e.key === 'z' || e.key === 'Z') && e.shiftKey) || e.key === 'y' || e.key === 'Y') {
-          e.preventDefault();
-          this.handleRedo();
-        }
+      const mod = e.ctrlKey || e.metaKey;
+      const selected = this.getSelectedLayer();
+
+      if (mod && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        this.handleUndo();
+      } else if (mod && (((e.key === 'z' || e.key === 'Z') && e.shiftKey) || e.key === 'y' || e.key === 'Y')) {
+        e.preventDefault();
+        this.handleRedo();
+      } else if (mod && e.code === 'KeyC' && selected) {
+        e.preventDefault();
+        this.copyLayer(selected.id);
+      } else if (mod && e.code === 'KeyV' && this.clipboardLayer) {
+        e.preventDefault();
+        this.pasteFromClipboard();
+      } else if (mod && e.code === 'KeyD' && selected) {
+        e.preventDefault();
+        this.handleDuplicateLayer(selected.id);
+      } else if (mod && e.shiftKey && e.code === 'KeyL' && selected) {
+        e.preventDefault();
+        this.toggleLock(selected.id);
+      } else if (mod && e.code === 'BracketRight' && selected) {
+        e.preventDefault();
+        this.arrangeLayer(selected.id, e.shiftKey ? 'front' : 'forward');
+      } else if (mod && e.code === 'BracketLeft' && selected) {
+        e.preventDefault();
+        this.arrangeLayer(selected.id, e.shiftKey ? 'back' : 'backward');
+      } else if (!mod && (e.key === 'Delete' || e.key === 'Backspace') && selected && !selected.locked) {
+        e.preventDefault();
+        this.handleRemoveLayer(selected.id);
       }
     });
+  }
+
+  getSelectedLayer() {
+    return this.state.project.layers.find(l => l.id === this.state.selectedId) || null;
+  }
+
+  /* ---------- Layer actions shared by the right-click menu, shortcuts and panel ---------- */
+
+  copyLayer(id) {
+    const layer = this.state.project.layers.find(l => l.id === id);
+    if (layer) this.clipboardLayer = JSON.parse(JSON.stringify(layer));
+  }
+
+  pasteFromClipboard(at = null) {
+    if (!this.clipboardLayer) return;
+    const { layers, newId } = pasteLayer(this.state.project.layers, this.clipboardLayer, at);
+    if (this.clipboardLayer.type === 'image' && this.clipboardLayer.src) {
+      this.loadImageLayer(newId, this.clipboardLayer.src);
+    }
+    this.updateProject(p => ({ ...p, layers }), { commit: true, source: 'layers' });
+    this.select(newId);
+  }
+
+  arrangeLayer(id, how) {
+    this.updateProject(p => ({
+      ...p,
+      layers: how === 'front' || how === 'back'
+        ? moveLayerToEdge(p.layers, id, how)
+        : moveLayer(p.layers, id, how === 'forward' ? 1 : -1)
+    }), { commit: true, source: 'layers' });
+  }
+
+  alignLayer(id, how) {
+    const layer = this.state.project.layers.find(l => l.id === id);
+    if (!layer || layer.locked) return;
+    this.updateProject(p => ({
+      ...p,
+      layers: updateLayer(p.layers, id, alignPatch(layer, how))
+    }), { commit: true, source: 'layers' });
+  }
+
+  toggleLock(id) {
+    const layer = this.state.project.layers.find(l => l.id === id);
+    if (!layer) return;
+    this.updateProject(p => ({
+      ...p,
+      layers: updateLayer(p.layers, id, { locked: !layer.locked })
+    }), { commit: true, source: 'layers' });
+  }
+
+  resetImageProportions(id) {
+    const layer = this.state.project.layers.find(l => l.id === id);
+    const tpl = this.state.project.template;
+    if (!layer || layer.type !== 'image' || !tpl || !layer.naturalWidth) return;
+    const aspect = tpl.width / tpl.height;
+    let hPct = layer.wPct * (layer.naturalHeight / layer.naturalWidth) * aspect;
+    let wPct = layer.wPct;
+    if (layer.yPct + hPct > 100) {
+      hPct = 100 - layer.yPct;
+      wPct = hPct / ((layer.naturalHeight / layer.naturalWidth) * aspect);
+    }
+    this.updateProject(p => ({
+      ...p,
+      layers: updateLayer(p.layers, id, {
+        wPct: Number(wPct.toFixed(2)),
+        hPct: Number(hPct.toFixed(2)),
+        keepAspect: true
+      })
+    }), { commit: true, source: 'layers' });
+  }
+
+  addTextAt(xPct, yPct) {
+    this.handleAddText();
+    const added = this.getSelectedLayer();
+    if (!added) return;
+    const x = Math.min(Math.max(0, xPct - added.wPct / 2), 100 - added.wPct);
+    const y = Math.min(Math.max(0, yPct - added.hPct / 2), 100 - added.hPct);
+    this.updateProject(p => ({
+      ...p,
+      layers: updateLayer(p.layers, added.id, { xPct: Number(x.toFixed(2)), yPct: Number(y.toFixed(2)) })
+    }), { commit: true, source: 'layers' });
+  }
+
+  /** Focus a control in the properties panel after it re-renders. */
+  focusPropertyControl(selector, click = false) {
+    requestAnimationFrame(() => {
+      const el = this.propertiesPanelMount && this.propertiesPanelMount.querySelector(selector);
+      if (!el) return;
+      el.scrollIntoView({ block: 'nearest' });
+      if (click) el.click(); else el.focus();
+    });
+  }
+
+  openLayerMenu({ id, clientX, clientY, xPct, yPct }) {
+    closeContextMenu();
+    const mac = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
+    const k = (key, shift = false) => mac ? `${shift ? '⇧' : ''}⌘${key}` : `Ctrl+${shift ? 'Shift+' : ''}${key}`;
+    const layer = id ? this.state.project.layers.find(l => l.id === id) : null;
+
+    if (!layer) {
+      openContextMenu({
+        x: clientX,
+        y: clientY,
+        title: 'Certificate',
+        items: [
+          { label: 'Paste here', icon: 'paste', shortcut: k('V'), disabled: !this.clipboardLayer, onSelect: () => this.pasteFromClipboard({ xPct, yPct }) },
+          { label: 'Add text here', icon: 'text', onSelect: () => this.addTextAt(xPct, yPct) }
+        ]
+      });
+      return;
+    }
+
+    const locked = !!layer.locked;
+    const typeItems = [];
+    if (layer.type === 'text') {
+      const bound = /^\{[^}]+\}$/.test(layer.text || '');
+      typeItems.push(
+        { label: bound ? 'Change column' : 'Edit text', icon: 'text', onSelect: () => this.focusPropertyControl(bound ? '#column-select' : '#custom-text-input') },
+        { label: 'Change font…', icon: 'font', onSelect: () => this.focusPropertyControl('#btn-open-font-picker', true) }
+      );
+    } else if (layer.type === 'image') {
+      typeItems.push(
+        { label: 'Replace image…', icon: 'image', onSelect: () => this.focusPropertyControl('#btn-replace-image', true) },
+        { label: 'Reset proportions', icon: 'ratio', disabled: locked, onSelect: () => this.resetImageProportions(layer.id) }
+      );
+    }
+
+    const items = [
+      { label: 'Copy', icon: 'copy', shortcut: k('C'), onSelect: () => this.copyLayer(layer.id) },
+      { label: 'Paste', icon: 'paste', shortcut: k('V'), disabled: !this.clipboardLayer, onSelect: () => this.pasteFromClipboard() },
+      { label: 'Duplicate', icon: 'duplicate', shortcut: k('D'), onSelect: () => this.handleDuplicateLayer(layer.id) },
+      { label: 'Delete', icon: 'trash', shortcut: 'Del', danger: true, disabled: locked, onSelect: () => this.handleRemoveLayer(layer.id) },
+      { type: 'separator' },
+      { label: 'Bring to front', icon: 'front', shortcut: k(']', true), onSelect: () => this.arrangeLayer(layer.id, 'front') },
+      { label: 'Bring forward', icon: 'forward', shortcut: k(']'), onSelect: () => this.arrangeLayer(layer.id, 'forward') },
+      { label: 'Send backward', icon: 'backward', shortcut: k('['), onSelect: () => this.arrangeLayer(layer.id, 'backward') },
+      { label: 'Send to back', icon: 'back', shortcut: k('[', true), onSelect: () => this.arrangeLayer(layer.id, 'back') }
+    ];
+    if (!locked) {
+      items.push({ type: 'separator' }, { type: 'align', label: 'Align to certificate', onSelect: (how) => this.alignLayer(layer.id, how) });
+    }
+    if (typeItems.length) items.push({ type: 'separator' }, ...typeItems);
+    items.push(
+      { type: 'separator' },
+      { label: locked ? 'Unlock' : 'Lock position', icon: locked ? 'unlock' : 'lock', shortcut: k('L', true), onSelect: () => this.toggleLock(layer.id) }
+    );
+
+    openContextMenu({ x: clientX, y: clientY, title: layer.name || 'Layer', items });
   }
 
   handleUndo() {
@@ -882,7 +1058,8 @@ class CertifyApp {
         },
         onMoveLayer: (id, delta) => this.handleMoveLayer(id, delta),
         onDuplicateLayer: (id) => this.handleDuplicateLayer(id),
-        onRemoveLayer: (id) => this.handleRemoveLayer(id)
+        onRemoveLayer: (id) => this.handleRemoveLayer(id),
+        onToggleLock: (id) => this.toggleLock(id)
       });
 
       renderLayersPanel(this.layersPanelMount, this.state.project.layers, this.state.selectedId, {
@@ -930,7 +1107,8 @@ class CertifyApp {
       },
       onMoveLayer: (id, delta) => this.handleMoveLayer(id, delta),
       onDuplicateLayer: (id) => this.handleDuplicateLayer(id),
-      onRemoveLayer: (id) => this.handleRemoveLayer(id)
+      onRemoveLayer: (id) => this.handleRemoveLayer(id),
+      onToggleLock: (id) => this.toggleLock(id)
     });
 
     // Render Right Panel (Recipients)
