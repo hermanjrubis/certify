@@ -158,8 +158,9 @@
 
 .layer-list-item.selected {
   background: var(--mat);
-  box-shadow: inset 3px 0 0 var(--ledger);
-  border-radius: 0 8px 8px 0;
+  border: 1px solid rgba(30, 107, 59, 0.35);
+  box-shadow: none;
+  border-radius: 8px;
 }
 
 /* The properties block reads as a new section under the layers list */
@@ -1148,39 +1149,58 @@
   }
 }
 
-/* ---------- Missing name field callout (Layers panel) ---------- */
-.name-field-callout {
-  margin: 0.75rem 0 0.25rem;
-  padding: 0.875rem;
-  border: 1px solid rgba(176, 138, 58, 0.45);
-  border-left: 3px solid var(--foil);
-  border-radius: 10px;
-  background: #FBF6EA;
+/* ---------- Missing name field: a ghost row where the layer used to be ---------- */
+.layer-ghost-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  border: 1px dashed var(--foil);
+  border-radius: 8px;
 }
 
-.name-field-callout-text {
-  margin: 0 0 0.75rem;
+.layer-ghost-badge {
+  background: transparent;
+  border: 1px dashed var(--foil);
+  color: var(--foil);
+}
+
+.layer-ghost-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.layer-ghost-title {
   font-size: 0.8125rem;
-  line-height: 1.5;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-.name-field-callout-btn {
-  width: 100%;
-  height: 2.375rem;
-  gap: 0.5rem;
+.layer-ghost-sub {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #8A6A24;
+}
+
+.layer-ghost-btn {
+  flex: none;
+  height: 1.875rem;
+  padding: 0 0.75rem;
   border-radius: 999px;
   background: var(--ledger);
   color: #fff;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
-.name-field-callout-btn:hover {
+.layer-ghost-btn:hover {
   background: var(--ledger-deep);
 }
 
-.name-field-callout-btn:focus-visible {
+.layer-ghost-btn:focus-visible {
   outline: 2px solid var(--leaf);
   outline-offset: 2px;
 }
