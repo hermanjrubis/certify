@@ -6,17 +6,20 @@
 import { SIZE_STEPS } from '../model/layers.js';
 import { openFontPicker } from './fontPicker.js';
 import { getFont } from '../fonts/catalog.js';
-import { DEFAULT_SWATCHES } from '../color/templateColors.js';
+import { openColorPicker } from './colorPicker.js';
+import { normalizeHex, contrastRatio, pickReadableInk } from '../color/colorMath.js';
 
 export function renderPropertiesPanel(el, layer, {
   columns = ['Name'],
   templateColors = [],
   sampleText = '',
+  bgUnderLayer = null,
+  onPickFromTemplate,
   onChange,
   onMoveLayer,
   onDuplicateLayer,
   onRemoveLayer
-}) {
+} = {}) {
   if (!el) return;
 
   if (!layer) {
@@ -35,7 +38,7 @@ export function renderPropertiesPanel(el, layer, {
       </div>
 
       <div class="properties-body">
-        ${renderTypeProperties(layer, { columns, templateColors, sampleText })}
+        ${renderTypeProperties(layer, { columns, templateColors, sampleText, bgUnderLayer })}
       </div>
 
       <div class="properties-footer">
@@ -67,10 +70,20 @@ export function renderPropertiesPanel(el, layer, {
     </div>
   `;
 
-  bindEvents(el, layer, { columns, templateColors, sampleText, onChange, onMoveLayer, onDuplicateLayer, onRemoveLayer });
+  bindEvents(el, layer, {
+    columns,
+    templateColors,
+    sampleText,
+    bgUnderLayer,
+    onPickFromTemplate,
+    onChange,
+    onMoveLayer,
+    onDuplicateLayer,
+    onRemoveLayer
+  });
 }
 
-function renderTypeProperties(layer, { columns, templateColors, sampleText }) {
+function renderTypeProperties(layer, { columns, templateColors, sampleText, bgUnderLayer }) {
   if (layer.type === 'text') {
     const isColumnMode = /^{([^}]+)}$/.test((layer.text || '').trim());
     const matchedCol = isColumnMode ? (layer.text || '').trim().replace(/^\{|\}$/g, '') : (columns[0] || 'Name');
@@ -165,7 +178,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText }) {
       <!-- Ink Colors -->
       <div class="form-group">
         <label class="form-label">Ink color</label>
-        ${renderColorSwatches(layer.color || '#1F2A1B', templateColors, 'color')}
+        ${renderColorControl(layer.color || '#1F2A1B', templateColors, 'color', { bgUnderLayer })}
       </div>
     `;
   }
@@ -217,7 +230,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText }) {
 
       <div class="form-group">
         <label class="form-label">Stroke color</label>
-        ${renderColorSwatches(layer.stroke || '#C8A24A', templateColors, 'stroke')}
+        ${renderColorControl(layer.stroke || '#C8A24A', templateColors, 'stroke')}
       </div>
 
       <div class="form-group">
@@ -231,10 +244,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText }) {
       ${isClosed ? `
         <div class="form-group">
           <label class="form-label">Fill color</label>
-          <div class="fill-options-row">
-            <button type="button" class="btn btn-sm btn-secondary ${!layer.fill || layer.fill === 'transparent' ? 'active' : ''}" id="btn-fill-none">None</button>
-            ${renderColorSwatches(layer.fill || 'transparent', templateColors, 'fill')}
-          </div>
+          ${renderColorControl(layer.fill, templateColors, 'fill', { isFill: true })}
         </div>
       ` : ''}
     `;
@@ -243,33 +253,61 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText }) {
   return '';
 }
 
-function renderColorSwatches(currentColor, templateColors, propName) {
-  const normCurrent = (currentColor || '').toLowerCase();
-  const validTemplate = (templateColors || []).slice(0, 3);
+function renderColorControl(currentColor, templateColors, propName, { bgUnderLayer = null, isFill = false } = {}) {
+  const isNone = isFill && (!currentColor || currentColor === 'transparent' || currentColor === 'none');
+  const normCurrent = isNone ? 'transparent' : (normalizeHex(currentColor) || '#1F2A1B');
+  const validTemplate = (templateColors || []).slice(0, 5);
+
+  let warningHtml = '';
+  if (propName === 'color' && bgUnderLayer) {
+    const ratio = contrastRatio(normCurrent, bgUnderLayer);
+    if (ratio < 3) {
+      warningHtml = `
+        <div class="contrast-warning-row">
+          <span>Hard to read on this part of the template</span>
+          <button type="button" class="contrast-fix-link" id="btn-fix-contrast">Fix</button>
+        </div>
+      `;
+    }
+  }
 
   return `
-    <div class="swatches-wrapper" data-prop="${propName}">
-      ${validTemplate.length > 0 ? `
-        <div class="swatches-row template-swatches">
-          ${validTemplate.map(hex => `
-            <button type="button" class="swatch-btn ${normCurrent === hex.toLowerCase() ? 'active' : ''}" data-hex="${hex}" style="background-color: ${hex};" title="Template color: ${hex}"></button>
-          `).join('')}
-        </div>
+    <div class="color-row-compact" data-prop="${propName}">
+      ${isFill ? `
+        <button type="button" class="color-chip-btn color-chip-btn-none ${isNone ? 'active' : ''}" id="btn-fill-none" title="No fill" aria-label="No fill"></button>
       ` : ''}
-      <div class="swatches-row classic-swatches">
-        ${DEFAULT_SWATCHES.map(s => `
-          <button type="button" class="swatch-btn ${normCurrent === s.hex.toLowerCase() ? 'active' : ''}" data-hex="${s.hex}" style="background-color: ${s.hex};" title="${s.label}: ${s.hex}"></button>
+      <button type="button" class="color-chip-btn" id="btn-color-chip-${propName}" aria-label="${propName} color ${normCurrent}, open color picker" style="background-color: ${isNone ? '#FFFFFF' : normCurrent};">
+        <span class="color-chip-chevron">▾</span>
+      </button>
+      <button type="button" class="btn-quick-eyedropper" id="btn-eyedropper-quick-${propName}" title="Pick color from template" aria-label="Pick color from template">
+        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m14 2 4 4-8 8H6v-4l8-8z"/>
+          <path d="M18 6l2 2"/>
+          <path d="M4 20h4"/>
+        </svg>
+      </button>
+      ${validTemplate.length > 0 ? `
+        <span class="color-row-divider"></span>
+        ${validTemplate.map(hex => `
+          <button type="button" class="quick-swatch ${normCurrent.toLowerCase() === hex.toLowerCase() ? 'active' : ''}" data-hex="${hex}" style="background-color: ${hex};" title="Template color ${hex}" aria-label="${hex}"></button>
         `).join('')}
-        <label class="custom-color-picker-label" title="Custom color">
-          <input type="color" class="custom-color-input" value="${normCurrent.startsWith('#') && normCurrent.length === 7 ? normCurrent : '#1F2A1B'}" />
-          <span class="custom-color-chip" style="background-color: ${currentColor};"></span>
-        </label>
-      </div>
+      ` : ''}
     </div>
+    ${warningHtml}
   `;
 }
 
-function bindEvents(el, layer, { columns, templateColors, sampleText, onChange, onMoveLayer, onDuplicateLayer, onRemoveLayer }) {
+function bindEvents(el, layer, {
+  columns,
+  templateColors,
+  sampleText,
+  bgUnderLayer,
+  onPickFromTemplate,
+  onChange,
+  onMoveLayer,
+  onDuplicateLayer,
+  onRemoveLayer
+}) {
   // Footer arrangement buttons
   const btnBringForward = el.querySelector('#btn-bring-forward');
   const btnSendBackward = el.querySelector('#btn-send-backward');
@@ -478,41 +516,58 @@ function bindEvents(el, layer, { columns, templateColors, sampleText, onChange, 
         onChange({ strokeWidthPct: val }, { commit: true });
       });
     }
-
-    const btnFillNone = el.querySelector('#btn-fill-none');
-    if (btnFillNone) {
-      btnFillNone.addEventListener('click', () => {
-        onChange({ fill: null }, { commit: true });
-      });
-    }
   }
 
-  // Swatches click & custom color pickers
-  el.querySelectorAll('.swatches-wrapper').forEach(wrapper => {
-    const propName = wrapper.dataset.prop;
-    wrapper.querySelectorAll('.swatch-btn').forEach(btn => {
+  // Compact color controls & eyedroppers
+  el.querySelectorAll('.color-row-compact').forEach(row => {
+    const propName = row.dataset.prop;
+    const chipBtn = row.querySelector(`#btn-color-chip-${propName}`);
+    const dropperBtn = row.querySelector(`#btn-eyedropper-quick-${propName}`);
+
+    if (chipBtn) {
+      chipBtn.addEventListener('click', () => {
+        openColorPicker(chipBtn, {
+          value: layer[propName] || (propName === 'stroke' ? '#C8A24A' : '#1F2A1B'),
+          templateColors,
+          onChange: (hex, { commit }) => {
+            onChange({ [propName]: hex }, { commit });
+          },
+          onPickFromTemplate
+        });
+      });
+    }
+
+    if (dropperBtn && onPickFromTemplate) {
+      dropperBtn.addEventListener('click', async () => {
+        const picked = await onPickFromTemplate();
+        if (picked) {
+          onChange({ [propName]: picked }, { commit: true });
+        }
+      });
+    }
+
+    row.querySelectorAll('.quick-swatch').forEach(btn => {
       btn.addEventListener('click', () => {
         const hex = btn.dataset.hex;
-        wrapper.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
         onChange({ [propName]: hex }, { commit: true });
       });
     });
-
-    const customInput = wrapper.querySelector('.custom-color-input');
-    if (customInput) {
-      customInput.addEventListener('input', (e) => {
-        const hex = e.target.value;
-        const chip = wrapper.querySelector('.custom-color-chip');
-        if (chip) chip.style.backgroundColor = hex;
-        wrapper.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
-        onChange({ [propName]: hex }, { commit: false });
-      });
-      customInput.addEventListener('change', (e) => {
-        onChange({ [propName]: e.target.value }, { commit: true });
-      });
-    }
   });
+
+  const btnFillNone = el.querySelector('#btn-fill-none');
+  if (btnFillNone) {
+    btnFillNone.addEventListener('click', () => {
+      onChange({ fill: null }, { commit: true });
+    });
+  }
+
+  const btnFixContrast = el.querySelector('#btn-fix-contrast');
+  if (btnFixContrast && bgUnderLayer) {
+    btnFixContrast.addEventListener('click', () => {
+      const fixedInk = pickReadableInk(bgUnderLayer, [...templateColors, '#1F2A1B', '#FFFFFF']);
+      onChange({ color: fixedInk }, { commit: true });
+    });
+  }
 }
 
 function escapeHtml(str) {
@@ -522,4 +577,3 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
-

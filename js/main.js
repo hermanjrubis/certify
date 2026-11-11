@@ -35,6 +35,7 @@ import { ZipExporter } from './zipExport.js';
 import { showConfirmDialog } from './ui/confirmDialog.js';
 import { computeFit, findFreeSlot } from './model/placement.js';
 import { pickReadableInk } from './color/colorMath.js';
+import { startTemplateEyedropper } from './ui/eyedropper.js';
 
 class CertifyApp {
   constructor() {
@@ -548,6 +549,25 @@ class CertifyApp {
     });
   }
 
+  handlePickColorFromTemplate() {
+    return new Promise((resolve) => {
+      const templateImg = this.state.images.get('template');
+      const viewportEl = document.getElementById('canvas-viewport-container');
+      const stageEl = document.querySelector('.canvas-stage-wrapper');
+      if (!templateImg || !viewportEl) {
+        resolve(null);
+        return;
+      }
+      startTemplateEyedropper({
+        stageEl,
+        viewportEl,
+        templateImg,
+        onPick: (hex) => resolve(hex),
+        onCancel: () => resolve(null)
+      });
+    });
+  }
+
   handleDownloadZip() {
     const templateImg = this.state.images.get('template');
     if (!templateImg) return;
@@ -731,6 +751,19 @@ class CertifyApp {
       ? (row ? resolveText(selectedLayer.text, row) : selectedLayer.text)
       : '';
 
+    let bgUnderLayer = null;
+    if (this.templateImageData && selectedLayer && this.state.project.template) {
+      const tplW = this.state.project.template.width || 2000;
+      const tplH = this.state.project.template.height || 1414;
+      const box = {
+        x: (selectedLayer.xPct / 100) * tplW,
+        y: (selectedLayer.yPct / 100) * tplH,
+        width: (selectedLayer.wPct / 100) * tplW,
+        height: (selectedLayer.hPct / 100) * tplH
+      };
+      bgUnderLayer = sampleAverageColor(this.templateImageData, box);
+    }
+
     // If change came from properties: rebuild layers list + toolbar (if commit) + update recipients derived
     if (source === 'properties') {
       if (commit) {
@@ -779,6 +812,8 @@ class CertifyApp {
         columns: this.state.project.recipients.columns,
         templateColors: this.templateColors,
         sampleText,
+        bgUnderLayer,
+        onPickFromTemplate: () => this.handlePickColorFromTemplate(),
         onChange: (patch, { commit }) => {
           if (this.state.selectedId) {
             this.updateProject(p => ({
@@ -825,6 +860,8 @@ class CertifyApp {
       columns: this.state.project.recipients.columns,
       templateColors: this.templateColors,
       sampleText,
+      bgUnderLayer,
+      onPickFromTemplate: () => this.handlePickColorFromTemplate(),
       onChange: (patch, { commit }) => {
         if (this.state.selectedId) {
           this.updateProject(p => ({
