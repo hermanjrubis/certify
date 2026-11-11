@@ -3,398 +3,276 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Certify — Bulk Certificate Generator</title>
-  <meta name="description" content="Generate hundreds of certificates from one template image. 100% client-side, zero backend, auto-fitting typography. Download ready-to-print ZIP archives in seconds.">
+  <title>Certify — Put every name on your certificate</title>
+  <meta name="description" content="Upload the certificate you already designed, paste your list of names, and download one PNG per person in a single ZIP. Runs in your browser, so your files never leave your computer.">
   <link rel="icon" type="image/png" href="/assets/logo.png">
 
-  <!-- Google Fonts: UI (Poppins), Heading (Fraunces), and Mockup Script (Dancing Script) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Young+Serif&family=Great+Vibes&display=swap" rel="stylesheet">
 
-  <!-- CSS Design System -->
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/home.css">
 </head>
 <body class="home-body">
 
-  <div class="home-page-wrapper">
-    
-    <!-- Navigation Bar -->
-    <header class="home-header">
-      <div class="home-container home-nav">
-        <a href="index.html" class="brand-wrapper" title="Certify Bulk Certificate Generator">
-          <img src="/assets/logo.png" alt="Certify Logo" class="brand-logo-img">
-        </a>
+  <header class="home-header">
+    <div class="home-container home-nav">
+      <a href="index.html" class="brand-wrapper" aria-label="Certify home">
+        <img src="/assets/logo.png" alt="Certify" class="brand-logo-img">
+      </a>
 
-        <!-- Mobile Navigation Toggle Button -->
-        <button type="button" class="home-nav-toggle" id="btn-mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="home-nav-menu">
-          <svg class="nav-icon-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-          <svg class="nav-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+      <button type="button" class="home-nav-toggle" id="btn-mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="home-nav-menu">
+        <svg class="nav-icon-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="7" x2="20" y2="7"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="17" x2="20" y2="17"></line>
+        </svg>
+        <svg class="nav-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="display: none;">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
 
-        <!-- Nav Links / Collapsible Mobile Menu -->
-        <nav class="home-nav-links" id="home-nav-menu" aria-label="Main Navigation">
-          <a href="#how-it-works" class="nav-link">How it works</a>
-          <a href="#features" class="nav-link">Features</a>
-          <a href="#faq" class="nav-link">FAQ</a>
-          <a href="app.html" class="btn btn-primary btn-sm">Open the editor</a>
-        </nav>
-      </div>
-    </header>
+      <nav class="home-nav-links" id="home-nav-menu" aria-label="Main">
+        <a href="#how-it-works" class="nav-link">How it works</a>
+        <a href="#features" class="nav-link">What it handles</a>
+        <a href="#faq" class="nav-link">Questions</a>
+        <a href="app.html" class="btn btn-primary btn-sm nav-cta">Open the editor</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Main Page Content -->
-    <main class="home-main">
-      <div class="home-container">
-        
-        <!-- Hero Section -->
-        <section class="hero-section" aria-label="Introduction">
-          <div class="hero-content">
-            
-            <!-- Privacy Badge -->
-            <div class="hero-privacy-badge">
-              <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <span>Runs in your browser &mdash; nothing is uploaded</span>
+  <main>
+
+    <!-- Hero: a live mail merge. The roster drives the certificate. -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="home-container hero-grid">
+
+        <div class="hero-copy">
+          <h1 class="hero-title" id="hero-title">One template, every name on the list.</h1>
+          <p class="hero-lede">
+            Upload the certificate you already designed, paste your names, and download one PNG for each person in a single ZIP.
+            It all runs in your browser, so your files never leave your computer.
+          </p>
+          <div class="hero-actions">
+            <a href="app.html" class="btn btn-primary btn-hero" id="cta-hero-start">Make certificates</a>
+            <a href="#how-it-works" class="hero-secondary-link">See how it works</a>
+          </div>
+        </div>
+
+        <div class="merge-demo" id="merge-demo">
+          <div class="roster" aria-label="Sample name list">
+            <div class="roster-head">
+              <span class="roster-file">names.csv</span>
+              <span class="roster-count" id="roster-count">6 names</span>
             </div>
-
-            <h1 class="hero-headline">Hundreds of certificates, one template away.</h1>
-            
-            <p class="hero-subhead">
-              Upload your design, paste your list of names, and let Certify place, resize, and export every certificate &mdash; ready to share in one zip file.
-            </p>
-
-            <div class="hero-actions-row">
-              <a href="app.html" class="btn btn-primary btn-hero" id="cta-hero-start">
-                Make my certificates
-                <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </a>
-              <a href="#how-it-works" class="hero-link-how" id="link-see-how">See how it works</a>
-            </div>
-
-            <!-- 3 Check Marks -->
-            <div class="hero-checks-list">
-              <div class="hero-check-item">
-                <svg class="svg-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>No sign-up</span>
-              </div>
-              <div class="hero-check-item">
-                <svg class="svg-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>Full-resolution PNGs</span>
-              </div>
-              <div class="hero-check-item">
-                <svg class="svg-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>Long names auto-fit</span>
-              </div>
-            </div>
-
+            <ol class="roster-list" id="roster-list">
+              <li><button type="button" class="roster-row is-active" data-name="Ana Dela Cruz">Ana Dela Cruz</button></li>
+              <li><button type="button" class="roster-row" data-name="Miguel Santos">Miguel Santos</button></li>
+              <li><button type="button" class="roster-row" data-name="Ñino Peñafrancia">Ñino Peñafrancia</button></li>
+              <li><button type="button" class="roster-row" data-name="Kristine Joy Dimaculangan">Kristine Joy Dimaculangan</button></li>
+              <li><button type="button" class="roster-row" data-name="Paolo Bautista">Paolo Bautista</button></li>
+              <li><button type="button" class="roster-row" data-name="Ma. Theresa Villanueva-Reyes">Ma. Theresa Villanueva-Reyes</button></li>
+            </ol>
           </div>
 
-          <!-- Pure CSS Fanned 3-Certificate Stack -->
-          <div class="hero-visual" aria-hidden="true">
-            <div class="cert-stack-wrapper">
-              
-              <!-- Back Card 2 (Bottom layer, tilted -6deg) -->
-              <div class="cert-stack-card card-back-2"></div>
-
-              <!-- Back Card 1 (Middle layer, tilted -2deg) -->
-              <div class="cert-stack-card card-back-1"></div>
-
-              <!-- Front Card (Foreground, tilted +2.5deg) -->
-              <div class="cert-stack-card card-front">
-                <div class="cert-card-inner-frame">
-                  <div class="cert-mock-header">Certificate of Completion</div>
-                  <div class="cert-mock-subhead">This certificate is proudly presented to</div>
-                  
-                  <div class="cert-mock-textbox">
-                    <span class="handle-dot nw"></span>
-                    <span class="handle-dot ne"></span>
-                    <span class="handle-dot se"></span>
-                    <span class="handle-dot sw"></span>
-                    <div class="cert-mock-name">Jade Cataya</div>
-                    <div class="cert-mock-pill">
-                      <svg class="svg-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span>auto-sized</span>
-                    </div>
-                  </div>
-
-                  <div class="cert-mock-footer-text">for successful completion of Web Development Masterclass</div>
-                  
-                  <div class="cert-mock-seal-row">
-                    <div class="cert-mock-signature-col">
-                      <div class="sig-line"></div>
-                      <span class="sig-label">Authorized Signature</span>
-                    </div>
-                    <div class="cert-mock-seal-badge">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="8" r="6" />
-                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-                      </svg>
-                    </div>
-                    <div class="cert-mock-signature-col">
-                      <div class="sig-line"></div>
-                      <span class="sig-label">Date Issued</span>
-                    </div>
-                  </div>
+          <figure class="demo-cert" aria-label="Certificate preview">
+            <div class="demo-cert-sheet">
+              <div class="demo-cert-frame">
+                <p class="demo-cert-kicker">Certificate of Participation</p>
+                <p class="demo-cert-line">is proudly presented to</p>
+                <div class="demo-cert-namebox" id="demo-namebox">
+                  <span class="demo-cert-name" id="demo-name" aria-live="polite">Ana Dela Cruz</span>
+                  <span class="crop crop-tl" aria-hidden="true"></span>
+                  <span class="crop crop-tr" aria-hidden="true"></span>
+                  <span class="crop crop-bl" aria-hidden="true"></span>
+                  <span class="crop crop-br" aria-hidden="true"></span>
+                </div>
+                <p class="demo-cert-line">for joining the Leadership Summit 2026</p>
+                <div class="demo-cert-sign">
+                  <span class="demo-sig">Adviser</span>
+                  <span class="demo-sig">President</span>
                 </div>
               </div>
-
+              <span class="seal-mark demo-cert-seal" aria-hidden="true"></span>
             </div>
-          </div>
-        </section>
-
-        <!-- On-Page "How it Works" Section (3 Steps) -->
-        <section class="section-how" id="how-it-works" aria-labelledby="how-heading">
-          <div class="section-header text-center">
-            <h2 class="section-title" id="how-heading">How it works</h2>
-            <p class="section-subtitle">From design to download in under two minutes.</p>
-          </div>
-
-          <div class="how-steps-grid">
-            
-            <div class="step-card">
-              <div class="step-badge">1</div>
-              <h3 class="step-title">Upload your template</h3>
-              <p class="step-desc">PNG, JPG or WebP, up to 20MB.</p>
-            </div>
-
-            <div class="step-card">
-              <div class="step-badge">2</div>
-              <h3 class="step-title">Design &amp; bind fields</h3>
-              <p class="step-desc">Add names, dates, or titles. Style fonts, colors, and sizes. Bind fields to spreadsheet columns with one click.</p>
-            </div>
-
-            <div class="step-card">
-              <div class="step-badge">3</div>
-              <h3 class="step-title">Review &amp; export</h3>
-              <p class="step-desc">Flip through certificates, flag long names that auto-shrank, and download every file bundled in a single ZIP.</p>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Four Feature Highlights -->
-        <section class="section-features" id="features" aria-labelledby="features-heading">
-          <div class="section-header text-center">
-            <h2 class="section-title" id="features-heading">Built for the boring part of certificates.</h2>
-            <p class="section-subtitle">Every feature exists to save you from doing 200 copies by hand.</p>
-          </div>
-
-          <div class="features-grid">
-            
-            <!-- Feature 1 -->
-            <div class="feature-card">
-              <div class="feature-icon-wrap">
-                <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="4 7 4 4 20 4 20 7" />
-                  <line x1="9" y1="20" x2="15" y2="20" />
-                  <line x1="12" y1="4" x2="12" y2="20" />
-                </svg>
-              </div>
-              <h3 class="feature-title">Names that always fit</h3>
-              <p class="feature-desc">Long names shrink proportionally to fit the bounding box so nothing ever wraps awkwardly or clips the border.</p>
-            </div>
-
-            <!-- Feature 2 -->
-            <div class="feature-card">
-              <div class="feature-icon-wrap">
-                <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-              <h3 class="feature-title">Private by design</h3>
-              <p class="feature-desc">Your recipient list, photos, and template never touch a server. Everything runs client-side inside your browser.</p>
-            </div>
-
-            <!-- Feature 3 -->
-            <div class="feature-card">
-              <div class="feature-icon-wrap">
-                <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                  <polyline points="10 9 9 9 8 9" />
-                </svg>
-              </div>
-              <h3 class="feature-title">More than just names</h3>
-              <p class="feature-desc">Add date fields, certificate numbers, signatures, or badges. Any text layer can pull from any CSV column.</p>
-            </div>
-
-            <!-- Feature 4 -->
-            <div class="feature-card">
-              <div class="feature-icon-wrap">
-                <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <polyline points="9 9 12 12 15 9" />
-                  <line x1="12" y1="12" x2="12" y2="3" />
-                </svg>
-              </div>
-              <h3 class="feature-title">Print-ready output</h3>
-              <p class="feature-desc">Lossless PNG rendering at the template&rsquo;s full native resolution. Ready for professional batch printing.</p>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- FAQ Section -->
-        <section class="section-faq" id="faq" aria-labelledby="faq-heading">
-          <div class="section-header text-center">
-            <h2 class="section-title" id="faq-heading">Frequently asked questions</h2>
-          </div>
-
-          <div class="faq-list">
-            
-            <details class="faq-item">
-              <summary class="faq-question">
-                <span>Are my certificate images or recipient names uploaded anywhere?</span>
-                <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </summary>
-              <div class="faq-answer">
-                <p>No. Certify runs entirely in your web browser. Your template image, names, and spreadsheet data stay on your machine and are never transmitted to any server.</p>
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                <span>Can I use multiple spreadsheet columns like &ldquo;Honor&rdquo; or &ldquo;Date&rdquo;?</span>
-                <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </summary>
-              <div class="faq-answer">
-                <p>Yes! When you import a CSV, any column can be referenced in any text layer using <code>{ColumnName}</code> syntax. You can also create separate text layers for each column.</p>
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                <span>What file formats can I upload and export?</span>
-                <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </summary>
-              <div class="faq-answer">
-                <p>You can upload templates in PNG, JPG, or WebP up to 20MB. Certify exports all certificates as full-resolution, lossless PNG files packaged into a single ZIP archive.</p>
-              </div>
-            </details>
-
-          </div>
-        </section>
+            <figcaption class="demo-cert-caption">Certificate <span id="demo-index">1</span> of 6, name sized to fit</figcaption>
+          </figure>
+        </div>
 
       </div>
+    </section>
 
-      <!-- Closing CTA Band (Full Width) -->
-      <section class="section-cta-band" aria-labelledby="cta-band-heading">
-        <div class="home-container cta-band-inner text-center">
-          <h2 class="cta-band-title" id="cta-band-heading">Ready to generate your certificates?</h2>
-          <p class="cta-band-desc">No account required. Jump straight into the editor.</p>
-          <a href="app.html" class="btn btn-primary btn-hero">
-            Open the editor
-            <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </a>
-        </div>
-      </section>
-    </main>
+    <!-- How it works: a real three-step sequence -->
+    <section class="section how" id="how-it-works" aria-labelledby="how-title">
+      <div class="home-container">
+        <h2 class="section-title" id="how-title">Three steps, no account</h2>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num" aria-hidden="true">1</span>
+            <h3 class="step-title">Upload your template</h3>
+            <p class="step-text">The certificate you made in Canva, Photoshop or PowerPoint, saved as PNG, JPG or WebP (up to 20MB).</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">2</span>
+            <h3 class="step-title">Place the name</h3>
+            <p class="step-text">Drag the name box where the name goes, then pick a font and ink. Add a date, course or signature if you need them.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">3</span>
+            <h3 class="step-title">Paste names and download</h3>
+            <p class="step-text">Paste a list or import a CSV, check the long names, and download every certificate in one ZIP.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-    <!-- Bottom Footer (Full width) -->
-    <footer class="home-footer">
-      <div class="home-container home-footer-inner">
-        <div class="footer-brand">
-          <a href="index.html" class="brand-wrapper" title="Certify Bulk Certificate Generator">
-            <img src="/assets/logo.png" alt="Certify Logo" class="brand-logo-img-sm">
-          </a>
-          <span class="footer-tagline">Made for teachers, event organizers, and teams.</span>
-        </div>
-        <div class="footer-meta">
-          <span>Runs 100% in your browser &bull; Private &amp; Open</span>
+    <!-- What it handles -->
+    <section class="section handles" id="features" aria-labelledby="handles-title">
+      <div class="home-container handles-grid">
+        <h2 class="section-title" id="handles-title">Made for the tedious part</h2>
+        <dl class="handles-list">
+          <div class="handle-item">
+            <dt>Long names fit</dt>
+            <dd>Names shrink, or wrap onto two lines, so “Ma. Theresa Villanueva-Reyes” fits the same box as “Ana”.</dd>
+          </div>
+          <div class="handle-item">
+            <dt>Ñ and accents stay correct</dt>
+            <dd>Peñafrancia stays Peñafrancia, on the certificate and in the file name.</dd>
+          </div>
+          <div class="handle-item">
+            <dt>More than names</dt>
+            <dd>Add a course, date, award or signature. Each text can come from its own spreadsheet column.</dd>
+          </div>
+          <div class="handle-item">
+            <dt>Print-ready files</dt>
+            <dd>Every certificate is a full-resolution PNG named after the person, ready to print or send.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Questions -->
+    <section class="section faq" id="faq" aria-labelledby="faq-title">
+      <div class="home-container faq-grid">
+        <h2 class="section-title" id="faq-title">Questions</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Are my template and names uploaded anywhere?</summary>
+            <p>No. Certify runs in your browser. Your template, names and spreadsheet stay on your computer, and your draft is saved in this browser so you can come back to it.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I use more columns, like Course or Date?</summary>
+            <p>Yes. Import a CSV and use any column in a text layer, for example “for completing {Course}”.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Which files can I upload, and what do I get?</summary>
+            <p>Upload a PNG, JPG or WebP up to 20MB. You get one ZIP with a full-resolution PNG for each name.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Does it cost anything?</summary>
+            <p>No. There's no account and no limit on the number of names.</p>
+          </details>
         </div>
       </div>
-    </footer>
+    </section>
 
-  </div>
+    <section class="closing" aria-labelledby="closing-title">
+      <div class="home-container closing-inner">
+        <div>
+          <h2 class="closing-title" id="closing-title">Your list is ready. So is the template.</h2>
+          <p class="closing-text">Open the editor and make the whole batch now.</p>
+        </div>
+        <a href="app.html" class="btn btn-on-dark btn-hero">Open the editor</a>
+        <span class="seal-mark closing-seal" aria-hidden="true"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="home-footer">
+    <div class="home-container home-footer-inner">
+      <img src="/assets/logo.png" alt="Certify" class="brand-logo-img-sm">
+      <span>Made for student organizations, teachers and event organizers. Runs in your browser.</span>
+    </div>
+  </footer>
 
   <script>
-    // Mobile navigation drawer toggle
+    // Mobile navigation
     const navToggle = document.getElementById('btn-mobile-nav-toggle');
     const navMenu = document.getElementById('home-nav-menu');
-    const iconMenu = navToggle ? navToggle.querySelector('.nav-icon-menu') : null;
-    const iconClose = navToggle ? navToggle.querySelector('.nav-icon-close') : null;
+    const iconMenu = navToggle.querySelector('.nav-icon-menu');
+    const iconClose = navToggle.querySelector('.nav-icon-close');
 
-    function toggleMobileNav() {
-      if (!navMenu || !navToggle) return;
-      const isOpen = navMenu.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      if (iconMenu && iconClose) {
-        iconMenu.style.display = isOpen ? 'none' : 'block';
-        iconClose.style.display = isOpen ? 'block' : 'none';
-      }
+    function setNav(open) {
+      navMenu.classList.toggle('is-open', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      iconMenu.style.display = open ? 'none' : 'block';
+      iconClose.style.display = open ? 'block' : 'none';
     }
+    navToggle.addEventListener('click', (e) => { e.stopPropagation(); setNav(!navMenu.classList.contains('is-open')); });
+    navMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setNav(false)));
+    document.addEventListener('click', (e) => {
+      if (navMenu.classList.contains('is-open') && !navMenu.contains(e.target) && !navToggle.contains(e.target)) setNav(false);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setNav(false); });
 
-    function closeMobileNav() {
-      if (!navMenu || !navToggle) return;
-      navMenu.classList.remove('is-open');
-      navToggle.setAttribute('aria-expanded', 'false');
-      if (iconMenu && iconClose) {
-        iconMenu.style.display = 'block';
-        iconClose.style.display = 'none';
+    // Live merge demo: the highlighted row fills the certificate.
+    (() => {
+      const demo = document.getElementById('merge-demo');
+      const rows = Array.from(document.querySelectorAll('.roster-row'));
+      const nameEl = document.getElementById('demo-name');
+      const box = document.getElementById('demo-namebox');
+      const indexEl = document.getElementById('demo-index');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let current = 0;
+      let timer = null;
+
+      function fitName() {
+        const max = parseFloat(getComputedStyle(box).getPropertyValue('--name-max')) || 46;
+        let size = max;
+        nameEl.style.fontSize = size + 'px';
+        const limit = box.clientWidth - 24;
+        while (nameEl.scrollWidth > limit && size > 14) {
+          size -= 1;
+          nameEl.style.fontSize = size + 'px';
+        }
       }
-    }
 
-    if (navToggle && navMenu) {
-      navToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleMobileNav();
-      });
-
-      // Close menu when clicking any nav link
-      navMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          closeMobileNav();
+      function show(i) {
+        current = i;
+        rows.forEach((r, n) => {
+          r.classList.toggle('is-active', n === i);
+          r.setAttribute('aria-pressed', n === i ? 'true' : 'false');
         });
-      });
+        const apply = () => {
+          nameEl.textContent = rows[i].dataset.name;
+          indexEl.textContent = String(i + 1);
+          fitName();
+          nameEl.classList.remove('is-swapping');
+        };
+        if (reduceMotion) { apply(); return; }
+        nameEl.classList.add('is-swapping');
+        setTimeout(apply, 160);
+      }
 
-      // Close menu when clicking anywhere outside
-      document.addEventListener('click', (e) => {
-        if (navMenu.classList.contains('is-open') && !navMenu.contains(e.target) && !navToggle.contains(e.target)) {
-          closeMobileNav();
-        }
-      });
+      function start() {
+        if (reduceMotion || timer) return;
+        timer = setInterval(() => show((current + 1) % rows.length), 2400);
+      }
+      function stop() { clearInterval(timer); timer = null; }
 
-      // Close menu on Escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && navMenu.classList.contains('is-open')) {
-          closeMobileNav();
-        }
-      });
-    }
+      rows.forEach((r, n) => r.addEventListener('click', () => { stop(); show(n); }));
+      demo.addEventListener('mouseenter', stop);
+      demo.addEventListener('mouseleave', start);
+      demo.addEventListener('focusin', stop);
+      window.addEventListener('resize', fitName);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitName);
+      show(0);
+      start();
+    })();
   </script>
-
 </body>
 </html>

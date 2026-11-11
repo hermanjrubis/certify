@@ -1,0 +1,533 @@
+/* ==========================================================================
+   Certify identity layer (editor)
+   Loaded after app.css. Everything that makes the editor look like Certify
+   and not a generic design tool lives here:
+     1. Full-width workbench: flat side panels, no cards inside cards
+     2. The mat: the certificate sits on a mint cutting mat with printer's
+        crop marks at its corners
+     3. Selection uses corner brackets (crop marks), not dots
+     4. Sentence-case serif section headings, no all-caps labels
+   ========================================================================== */
+
+/* ---------- Header ---------- */
+.app-header {
+  min-height: 4rem;
+  padding: 0.5rem 1.5rem;
+}
+
+.app-header .brand-logo-img {
+  height: 38px;
+  max-height: 38px;
+}
+
+.project-title-input {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.125rem;
+}
+
+.save-status-text {
+  font-size: 0.8125rem;
+}
+
+#btn-review-download {
+  height: 2.5rem;
+  padding: 0 1.125rem;
+  font-size: 0.875rem;
+}
+
+#btn-review-download .badge,
+#btn-review-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border: 0;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Stepper: serif numerals, filled ledger circle for the current step */
+.stepper-step {
+  font-size: 0.875rem;
+  gap: 0.5rem;
+  opacity: 1;
+  color: var(--text-secondary);
+}
+
+.stepper-step .stepper-num {
+  width: 1.625rem;
+  height: 1.625rem;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 0.8125rem;
+  background: transparent;
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
+}
+
+.stepper-step.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.stepper-step.active .stepper-num {
+  background: var(--ledger);
+  border-color: var(--ledger);
+  color: #FFFFFF;
+}
+
+.stepper-step.done .stepper-num {
+  border-color: var(--ledger);
+  color: var(--ledger);
+  background: var(--mat);
+}
+
+.stepper-divider {
+  width: 1.5rem;
+}
+
+/* ---------- Page frame: no outer card ---------- */
+.app-main {
+  max-width: none;
+  padding: 0;
+}
+
+.editor-frame {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: calc(100vh - 4rem);
+}
+
+/* ---------- Section headings: sentence case, serif ---------- */
+.section-label {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-primary);
+  margin-bottom: 0.875rem;
+}
+
+.picker-section-label,
+.font-group-label,
+.color-palette-label,
+.columns-label,
+.font-picker-section-title {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---------- Flat panels ---------- */
+.editor-side-panel {
+  background: var(--bg-card);
+  box-sizing: border-box;
+}
+
+.properties-panel-container,
+.recipients-panel-container {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.layers-list {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  max-height: 220px;
+}
+
+.layer-list-item {
+  border-radius: 8px;
+}
+
+.layer-list-item.selected {
+  background: var(--mat);
+  box-shadow: inset 3px 0 0 var(--ledger);
+  border-radius: 0 8px 8px 0;
+}
+
+/* The properties block reads as a new section under the layers list */
+#properties-panel-mount {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+}
+
+.segmented-control {
+  border-radius: 10px;
+}
+
+/* ---------- The mat ---------- */
+.canvas-stage-wrapper {
+  background-color: var(--mat);
+  background-image:
+    linear-gradient(var(--mat-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+  border-radius: 0;
+  border: 0;
+}
+
+.canvas-viewport-container {
+  border-radius: 0;
+  box-shadow: 0 1px 2px rgba(24, 38, 28, 0.12), 0 18px 40px -22px rgba(24, 69, 42, 0.45);
+}
+
+#preview-canvas {
+  border-radius: 0;
+}
+
+/* Printer's crop marks just outside each corner of the certificate */
+.canvas-viewport-container::before {
+  --mark: rgba(24, 69, 42, 0.55);
+  content: '';
+  position: absolute;
+  inset: -18px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--mark), var(--mark)) left 0 top 18px / 11px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) left 18px top 0 / 1px 11px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) right 0 top 18px / 11px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) right 18px top 0 / 1px 11px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) left 0 bottom 18px / 11px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) left 18px bottom 0 / 1px 11px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) right 0 bottom 18px / 11px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) right 18px bottom 0 / 1px 11px no-repeat;
+}
+
+/* Tool tray and row switcher sit on the mat as white trays */
+.add-toolbar,
+.row-switcher-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(24, 38, 28, 0.06);
+}
+
+.add-toolbar .btn-secondary {
+  border-color: transparent;
+  background: transparent;
+}
+
+.add-toolbar .btn-secondary:hover:not(:disabled) {
+  background: var(--mat);
+  border-color: transparent;
+}
+
+.row-switcher-bar {
+  max-width: 560px;
+  padding: 0.375rem 0.5rem 0.375rem 0.875rem;
+}
+
+/* ---------- Selection: corner brackets instead of dots ---------- */
+.layer-box:hover {
+  border-color: rgba(89, 184, 77, 0.6);
+}
+
+.layer-box.bound-text {
+  border: 1px dashed rgba(89, 184, 77, 0.85);
+}
+
+.layer-box.selected {
+  border: 1px solid var(--leaf);
+  background: rgba(89, 184, 77, 0.06);
+}
+
+.layer-box .layer-handle {
+  width: 16px;
+  height: 16px;
+  background: transparent;
+  border: 0 solid var(--leaf);
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.35));
+}
+
+/* larger invisible grab area for fingers */
+.layer-box .layer-handle::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.layer-box .handle-nw { top: -7px; left: -7px; border-top-width: 3px; border-left-width: 3px; }
+.layer-box .handle-ne { top: -7px; right: -7px; left: auto; border-top-width: 3px; border-right-width: 3px; }
+.layer-box .handle-se { bottom: -7px; right: -7px; top: auto; left: auto; border-bottom-width: 3px; border-right-width: 3px; }
+.layer-box .handle-sw { bottom: -7px; left: -7px; top: auto; border-bottom-width: 3px; border-left-width: 3px; }
+
+/* ---------- Upload screen: a blank certificate sheet on the mat ---------- */
+.upload-view-container {
+  min-height: calc(100vh - 4rem);
+  padding: 3rem 1.5rem;
+  background-color: var(--mat);
+  background-image:
+    linear-gradient(var(--mat-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  box-sizing: border-box;
+}
+
+.upload-dropzone {
+  position: relative;
+  width: min(640px, 100%);
+  max-width: none;
+  aspect-ratio: 1.414;
+  justify-content: center;
+  padding: 2rem;
+  background: #FFFFFF;
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 1px 2px rgba(24, 38, 28, 0.12), 0 24px 48px -26px rgba(24, 69, 42, 0.45);
+  box-sizing: border-box;
+}
+
+/* inner rule like a certificate border; turns solid green on hover/drag */
+.upload-dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1.5px dashed var(--border-hairline);
+  pointer-events: none;
+  transition: border-color var(--transition-fast);
+}
+
+.upload-dropzone:hover,
+.upload-dropzone:focus-visible,
+.upload-dropzone.drag-over,
+.upload-dropzone.dragover,
+.upload-dropzone.is-dragover {
+  background: #FFFFFF;
+  border: 0;
+  outline: none;
+}
+
+.upload-dropzone:hover::before,
+.upload-dropzone:focus-visible::before,
+.upload-dropzone.drag-over::before,
+.upload-dropzone.dragover::before,
+.upload-dropzone.is-dragover::before {
+  border: 1.5px solid var(--ledger);
+}
+
+.upload-title {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  margin: 0;
+}
+
+.upload-desc {
+  max-width: 30ch;
+  margin: 0 auto;
+}
+
+.upload-icon-circle {
+  background: var(--mat);
+  color: var(--ledger);
+}
+
+.upload-meta-pill {
+  background: transparent;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+/* ---------- Review screen: give it room now that the outer card is gone ---------- */
+#view-review {
+  padding: 1.5rem 2rem 3rem;
+  box-sizing: border-box;
+}
+
+#view-review .detail-value.mono {
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+/* ---------- Desktop workbench: full width, flat columns ---------- */
+@media (min-width: 1081px) {
+  .editor-workbench-grid {
+    grid-template-columns: 300px minmax(0, 1fr) 320px;
+    gap: 0;
+    align-items: stretch;
+    min-height: calc(100vh - 4rem);
+  }
+
+  .editor-side-panel {
+    position: sticky;
+    top: 4rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+    padding: 1.25rem 1.25rem 2rem;
+  }
+
+  #left-panel-mount {
+    border-right: 1px solid var(--border-hairline);
+  }
+
+  #right-panel-mount {
+    border-left: 1px solid var(--border-hairline);
+  }
+
+  .canvas-stage-wrapper {
+    height: calc(100vh - 4rem);
+    max-height: none;
+    padding: 1.25rem 2.5rem 1.5rem;
+    position: sticky;
+    top: 4rem;
+  }
+}
+
+/* ---------- Tablet: stacked, still flat ---------- */
+@media (min-width: 761px) and (max-width: 1080px) {
+  .editor-workbench-grid {
+    gap: 0;
+  }
+
+  .editor-side-panel {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border-hairline);
+  }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 760px) {
+  /* Header on one row: back, title, menu */
+  .app-header {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem 0.375rem 0.25rem;
+    min-height: 3.5rem;
+  }
+
+  .app-header-brand-group {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 0.25rem;
+  }
+
+  .project-title-wrapper {
+    min-width: 0;
+    flex: 1 1 auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .project-title-row {
+    min-width: 0;
+  }
+
+  .project-title-row .pencil-icon {
+    display: none;
+  }
+
+  .project-title-input {
+    width: 100%;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .app-header-actions {
+    width: auto;
+    flex: none;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .header-more-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* clip (not hidden) so .app-main doesn't become the sticky container:
+     the canvas then pins under the header as intended */
+  .app-main {
+    overflow-x: clip;
+  }
+
+  .mobile-progress-bar {
+    top: 3.5rem;
+  }
+
+  /* Fixed height (the canvas fit is measured from it), but never the
+     400px desktop minimum that made it cover the panel below */
+  .canvas-stage-wrapper {
+    background-color: var(--mat);
+    top: calc(3.5rem + 4px);
+    min-height: 0;
+    height: calc(min(40vh, 300px) + 64px);
+    max-height: none;
+    padding: 14px 14px 0;
+  }
+
+  #view-review {
+    padding: 1rem 1rem 6rem;
+  }
+
+  .editor-side-panel .add-toolbar {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .editor-side-panel .add-toolbar .btn-secondary {
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-card);
+  }
+
+  .canvas-viewport-container::before {
+    inset: -10px;
+    background:
+      linear-gradient(var(--mark), var(--mark)) left 0 top 10px / 6px 1px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) left 10px top 0 / 1px 6px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) right 0 top 10px / 6px 1px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) right 10px top 0 / 1px 6px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) left 0 bottom 10px / 6px 1px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) left 10px bottom 0 / 1px 6px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) right 0 bottom 10px / 6px 1px no-repeat,
+      linear-gradient(var(--mark), var(--mark)) right 10px bottom 0 / 1px 6px no-repeat;
+  }
+
+  .editor-side-panel {
+    padding: 1rem;
+  }
+
+  .upload-view-container {
+    min-height: calc(100vh - 56px);
+    padding: 1.5rem 1rem;
+    justify-content: flex-start;
+  }
+
+  .upload-dropzone {
+    aspect-ratio: auto;
+    min-height: 300px;
+    padding: 2.5rem 1.5rem;
+  }
+
+}
