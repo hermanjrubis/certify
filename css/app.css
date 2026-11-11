@@ -203,7 +203,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 1.125rem;
 }
 
@@ -293,7 +293,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .font-option-item {
@@ -349,7 +349,7 @@
 
 .font-size-hint {
   font-size: 0.6875rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .font-size-control {
@@ -417,7 +417,7 @@
 
 .size-unit {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 600;
   margin-left: 0.25rem;
 }
@@ -689,7 +689,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 0.4rem;
 }
 
@@ -875,7 +875,7 @@
 
 .names-count-label {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -983,7 +983,7 @@
 
 .upload-meta-pill {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   background: var(--bg-subtle);
   padding: 0.25rem 0.75rem;
   border-radius: var(--radius-pill);

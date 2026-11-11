@@ -84,19 +84,19 @@ button:disabled {
 }
 
 .btn-primary {
-  background-color: var(--accent);
+  background-color: var(--accent-strong);
   color: var(--text-on-accent);
-  box-shadow: 0 2px 6px rgba(89, 184, 77, 0.25);
+  box-shadow: 0 2px 6px rgba(58, 133, 49, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  box-shadow: 0 4px 10px rgba(89, 184, 77, 0.35);
+  background-color: var(--accent-strong-hover);
+  box-shadow: 0 4px 10px rgba(58, 133, 49, 0.35);
   transform: translateY(-1px);
 }
 
 .btn-primary:active:not(:disabled) {
-  background-color: var(--accent-active);
+  background-color: var(--accent-strong-hover);
   transform: translateY(0);
 }
 

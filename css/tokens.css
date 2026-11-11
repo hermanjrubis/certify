@@ -7,6 +7,8 @@
   --bg-input: #F8FAF6;
   
   /* Green Accent Scale */
+  --accent-strong: #3A8531;
+  --accent-strong-hover: #2E5C24;
   --accent: #59B84D;
   --accent-hover: #4FA743;
   --accent-active: #45963A;
@@ -26,7 +28,7 @@
   
   /* Neutral Typography */
   --text-primary: #1F2A1B;
-  --text-secondary: #6E7A67;
+  --text-secondary: #5F6B58;
   --text-muted: #9CAA94;
   --text-inverse: #FFFFFF;
   
