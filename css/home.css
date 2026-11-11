@@ -1,4 +1,12 @@
-/* Certify Homepage Marketing Styles - Full width, flat surfaces, no outer card */
+/* ==========================================================================
+   Certify Homepage Marketing Styles
+   Follows UI/UX Redesign Mockups: Tighter hero, fanned certificate stack,
+   on-page How it Works, 4 Feature cards, 3 FAQ accordions, CTA band, footer.
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
 
 .home-body {
   background-color: var(--bg-page);
@@ -9,6 +17,7 @@
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  font-family: var(--font-ui);
 }
 
 .home-page-wrapper {
@@ -27,14 +36,19 @@
   box-sizing: border-box;
 }
 
-/* Home Header & Navbar */
+/* ==========================================================================
+   Navigation Bar
+   ========================================================================== */
 .home-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 100%;
   padding: 0.625rem 0;
   border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-page);
-  z-index: 50;
+  background: rgba(248, 250, 247, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
 }
 
 .home-nav {
@@ -43,6 +57,52 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.brand-wrapper {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-logo-img {
+  height: 48px;
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.02);
+}
+
+.brand-logo-img-sm {
+  height: 38px;
+  max-height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.home-nav-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.nav-link {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
 }
 
 .home-nav-toggle {
@@ -65,47 +125,13 @@
 }
 
 .home-nav-toggle:focus-visible {
-  outline: 2px solid var(--brand-forest);
+  outline: 2px solid var(--accent-strong);
   outline-offset: 2px;
 }
 
-.brand-wrapper {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-logo-img {
-  height: 54px;
-  max-height: 54px;
-  width: auto;
-  object-fit: contain;
-  display: block;
-  transition: transform var(--transition-fast);
-}
-
-.brand-logo-img:hover {
-  transform: scale(1.03);
-}
-
-.home-nav-links {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 2rem;
-}
-
-.nav-link {
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.nav-link:hover {
-  color: var(--text-primary);
-}
-
-/* Hero Section */
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
 .home-main {
   flex: 1;
   display: flex;
@@ -118,40 +144,73 @@
   align-items: center;
   justify-content: space-between;
   gap: 3.5rem;
-  min-height: calc(100vh - 75px);
-  padding: 2rem 0 3.5rem;
+  padding: 3.5rem 0 4rem;
   width: 100%;
   box-sizing: border-box;
 }
 
 .hero-content {
   flex: 1 1 48%;
-  max-width: 470px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.25rem;
+}
+
+/* Privacy Badge Pill */
+.hero-privacy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: flex-start;
+  padding: 0.35rem 0.75rem;
+  background: var(--mint-tint);
+  border: 1px solid rgba(89, 184, 77, 0.25);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-strong);
+  letter-spacing: 0.01em;
+}
+
+.hero-privacy-badge .svg-icon {
+  stroke: var(--accent-strong);
+  flex-shrink: 0;
 }
 
 .hero-headline {
   font-family: var(--font-heading);
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  margin: 0;
 }
 
 .hero-subhead {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--text-secondary);
+  margin: 0;
 }
 
 .hero-actions-row {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-top: 0.5rem;
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.btn-hero {
+  padding: 0.75rem 1.4rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .hero-link-how {
@@ -160,63 +219,141 @@
   color: var(--text-secondary);
   text-decoration: underline;
   text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color var(--transition-fast);
 }
 
 .hero-link-how:hover {
-  color: var(--accent-dark);
+  color: var(--accent-strong);
 }
 
-/* Hero Certificate Mockup Card (Larger & Completely Static - No hover) */
+/* 3 Check Marks List */
+.hero-checks-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.hero-check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.hero-check-item .svg-check {
+  color: var(--accent-strong);
+  stroke: var(--accent-strong);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Pure CSS Fanned 3-Certificate Stack
+   ========================================================================== */
 .hero-visual {
   flex: 1 1 52%;
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1000px;
+  perspective: 1200px;
 }
 
-.tilted-cert-card {
-  width: 500px;
+.cert-stack-wrapper {
+  position: relative;
+  width: 460px;
   max-width: 100%;
-  height: 330px;
+  height: 310px;
+}
+
+.cert-stack-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: #FFFFFF;
   border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  transition: transform 0.3s ease;
+}
+
+/* Back Card 2 (Bottom layer: tilted -5deg, slightly scaled down) */
+.cert-stack-card.card-back-2 {
+  transform: rotate(-5deg) translate(-14px, 12px) scale(0.93);
+  background: #F4F7F2;
+  border-color: rgba(31, 42, 27, 0.08);
+  box-shadow: 0 8px 24px rgba(31, 42, 27, 0.04);
+  z-index: 1;
+}
+
+/* Back Card 1 (Middle layer: tilted -1.5deg) */
+.cert-stack-card.card-back-1 {
+  transform: rotate(-1.5deg) translate(-6px, 6px) scale(0.97);
+  background: #FBFDF9;
+  border-color: rgba(31, 42, 27, 0.1);
+  box-shadow: 0 12px 30px rgba(31, 42, 27, 0.06);
+  z-index: 2;
+}
+
+/* Front Card (Foreground: tilted +2.5deg, full details) */
+.cert-stack-card.card-front {
+  transform: rotate(2.5deg);
+  z-index: 3;
+  padding: 1.15rem;
+  box-shadow: 0 16px 38px rgba(31, 42, 27, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-card-inner-frame {
+  flex: 1;
+  border: 1px solid rgba(89, 184, 77, 0.3);
   border-radius: var(--radius-sm);
-  box-shadow: 0 16px 36px rgba(31, 42, 27, 0.09);
-  transform: rotate(3deg);
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  position: relative;
+  justify-content: space-between;
   text-align: center;
-  user-select: none;
+  background: #FFFFFF;
   box-sizing: border-box;
 }
 
 .cert-mock-header {
   font-family: var(--font-ui);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.cert-mock-subhead {
+  font-size: 0.6875rem;
   color: var(--text-secondary);
-  margin-bottom: 0.85rem;
+  margin-top: 0.15rem;
 }
 
 /* Dashed Selection Box around Name */
 .cert-mock-textbox {
   border: 1.5px dashed var(--accent);
-  padding: 0.75rem 2.25rem;
+  padding: 0.4rem 1.75rem;
   position: relative;
-  margin: 0.75rem 0;
+  margin: 0.5rem 0;
   background: rgba(89, 184, 77, 0.04);
+  border-radius: 2px;
 }
 
 .cert-mock-name {
   font-family: 'Dancing Script', cursive;
-  font-size: 2.75rem;
+  font-size: 2.25rem;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
@@ -225,48 +362,194 @@
 /* Corner Handles on Mockup */
 .cert-mock-textbox .handle-dot {
   position: absolute;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   background: var(--accent);
   border: 1px solid #FFFFFF;
   border-radius: 1px;
 }
 
-.handle-dot.nw { top: -3.5px; left: -3.5px; }
-.handle-dot.ne { top: -3.5px; right: -3.5px; }
-.handle-dot.se { bottom: -3.5px; right: -3.5px; }
-.handle-dot.sw { bottom: -3.5px; left: -3.5px; }
+.handle-dot.nw { top: -3px; left: -3px; }
+.handle-dot.ne { top: -3px; right: -3px; }
+.handle-dot.se { bottom: -3px; right: -3px; }
+.handle-dot.sw { bottom: -3px; left: -3px; }
 
 /* Floating Auto-sized Pill */
 .cert-mock-pill {
   position: absolute;
-  bottom: -0.85rem;
-  right: -1.25rem;
-  background: var(--mint-tint);
-  border: 1px solid var(--border-hairline);
-  color: var(--text-on-mint);
-  font-size: 0.75rem;
+  bottom: -0.65rem;
+  right: -0.85rem;
+  background: #E8F5E5;
+  border: 1px solid rgba(89, 184, 77, 0.4);
+  color: var(--accent-strong);
+  font-size: 0.6875rem;
   font-weight: 600;
-  padding: 0.2rem 0.65rem;
+  padding: 0.15rem 0.5rem;
   border-radius: var(--radius-pill);
   box-shadow: 0 2px 5px rgba(46, 92, 36, 0.1);
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
 
-.cert-mock-subtext {
-  font-size: 0.8125rem;
+.cert-mock-footer-text {
+  font-size: 0.6875rem;
   color: var(--text-secondary);
-  margin-top: 0.85rem;
+  line-height: 1.3;
+  max-width: 85%;
 }
 
-/* Feature Highlights (4 Cards Row) */
+.cert-mock-seal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.cert-mock-signature-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 80px;
+}
+
+.cert-mock-signature-col .sig-line {
+  width: 100%;
+  height: 1px;
+  background: var(--border-hairline);
+}
+
+.cert-mock-signature-col .sig-label {
+  font-size: 0.5625rem;
+  color: var(--text-secondary);
+}
+
+.cert-mock-seal-badge {
+  color: var(--accent-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Shared Section Header
+   ========================================================================== */
+.section-header {
+  margin-bottom: 2.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.section-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.section-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   On-Page "How it Works" (3 Step Cards)
+   ========================================================================== */
+.section-how {
+  padding: 4.5rem 0 3.5rem;
+  border-top: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+.how-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-subtle);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.step-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.step-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--mint-tint);
+  border: 1px solid rgba(89, 184, 77, 0.3);
+  color: var(--accent-strong);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-title {
+  font-family: var(--font-ui);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.step-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Features Section (4 Feature Cards)
+   ========================================================================== */
+.section-features {
+  padding: 4rem 0 4.5rem;
+  border-top: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
 .features-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
-  padding: 5rem 0 6rem;
   width: 100%;
 }
 
@@ -274,7 +557,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
-  padding: 1.5rem 1.25rem;
+  padding: 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -289,12 +572,15 @@
 }
 
 .feature-icon-wrap {
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--mint-tint);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-dark);
+  color: var(--accent-strong);
+  stroke: var(--accent-strong);
 }
 
 .feature-title {
@@ -302,135 +588,222 @@
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .feature-desc {
   font-size: 0.8125rem;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.45;
+  margin: 0;
 }
 
-/* Bottom Trust Bar (Full Width Mint Tint) */
-.home-bottom-banner {
-  background-color: var(--mint-tint);
-  border-top: 1px solid var(--border-hairline);
-  margin-top: auto;
-  padding: 1.25rem 0;
+/* ==========================================================================
+   FAQ Section (<details> / <summary> Accordion)
+   ========================================================================== */
+.section-faq {
+  padding: 4rem 0 5rem;
+  border-top: 1px solid var(--border-subtle);
   width: 100%;
 }
 
-.home-banner-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.home-bottom-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-on-mint);
-}
-
-.home-privacy-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--accent-dark);
-}
-
-/* How It Works Modal */
-.how-it-works-modal {
-  max-width: 600px;
-}
-
-.how-steps-list {
+.faq-list {
+  max-width: 720px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  margin: 1.5rem 0;
-}
-
-.how-step-item {
-  display: flex;
   gap: 1rem;
-  align-items: flex-start;
 }
 
-.step-number {
-  width: 1.875rem;
-  height: 1.875rem;
-  border-radius: var(--radius-pill);
-  background: var(--mint-tint);
-  color: var(--text-on-mint);
-  font-weight: 600;
-  font-size: 0.875rem;
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.faq-item[open] {
+  border-color: rgba(89, 184, 77, 0.4);
+}
+
+.faq-question {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid var(--border-hairline);
-}
-
-.step-details h4 {
-  font-family: var(--font-ui);
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
 }
 
-.step-details p {
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-question:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: -2px;
+}
+
+.faq-chevron {
+  color: var(--text-secondary);
+  stroke: var(--text-secondary);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.faq-item[open] .faq-chevron {
+  transform: rotate(180deg);
+  stroke: var(--accent-strong);
+}
+
+.faq-answer {
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.faq-answer p {
+  margin: 0;
+}
+
+.faq-answer code {
+  font-family: monospace;
+  background: var(--mint-tint);
+  color: var(--accent-strong);
+  padding: 0.15rem 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+/* ==========================================================================
+   Closing CTA Band (Full Width)
+   ========================================================================== */
+.section-cta-band {
+  background: var(--mint-tint);
+  border-top: 1px solid rgba(89, 184, 77, 0.25);
+  border-bottom: 1px solid rgba(89, 184, 77, 0.25);
+  padding: 3.5rem 0;
+  width: 100%;
+}
+
+.cta-band-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cta-band-title {
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cta-band-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.home-footer {
+  background: var(--bg-page);
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.home-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-tagline {
   font-size: 0.8125rem;
   color: var(--text-secondary);
 }
 
-/* Responsive */
-@media (max-width: 860px) {
+.footer-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 960px) {
   .hero-section {
     flex-direction: column;
     text-align: center;
     padding: 3rem 0;
+    gap: 2.5rem;
   }
+
   .hero-content {
     max-width: 100%;
+    align-items: center;
   }
+
+  .hero-privacy-badge {
+    align-self: center;
+  }
+
   .hero-actions-row {
     justify-content: center;
   }
-  .hero-headline {
-    font-size: 2.375rem;
+
+  .hero-checks-list {
+    justify-content: center;
   }
-  .hero-visual {
-    width: 100%;
-    margin-top: 2.5rem;
-    perspective: none;
-  }
-  .tilted-cert-card {
-    transform: none;
-    max-width: 460px;
-    width: 100%;
-    height: auto;
-    min-height: 240px;
-    padding: 2rem 1.5rem;
-    box-shadow: 0 10px 28px rgba(31, 42, 27, 0.08);
-  }
+
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 1rem 0 3rem;
   }
-  .home-banner-inner {
+}
+
+@media (max-width: 768px) {
+  .how-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .home-footer-inner {
     flex-direction: column;
     text-align: center;
+    gap: 0.85rem;
+  }
+
+  .footer-brand {
+    flex-direction: column;
+    gap: 0.4rem;
   }
 }
 
 @media (max-width: 640px) {
   .home-nav-toggle {
     display: inline-flex;
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .home-nav-links {
@@ -471,6 +844,9 @@
     border-bottom: 1px solid var(--border-subtle);
     display: block;
     color: var(--text-primary);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 
   .home-nav-links .btn {
@@ -481,6 +857,43 @@
     font-size: 0.9375rem;
     width: 100%;
     box-sizing: border-box;
+    min-height: 44px;
+  }
+
+  .hero-headline {
+    font-size: 2rem;
+  }
+
+  .hero-actions-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .btn-hero {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+    box-sizing: border-box;
+  }
+
+  .hero-checks-list {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .cert-stack-wrapper {
+    width: 320px;
+    height: 220px;
+  }
+
+  .cert-mock-name {
+    font-size: 1.6rem;
+  }
+
+  .cert-mock-textbox {
+    padding: 0.25rem 1rem;
   }
 
   .features-grid {
@@ -489,34 +902,19 @@
 }
 
 @media (max-width: 480px) {
-  .brand-logo-img {
-    height: 46px;
-    max-height: 46px;
-  }
-
-  .hero-headline {
-    font-size: 1.875rem;
-  }
-
   .home-container {
     padding: 0 1.25rem;
   }
 
-  .home-nav-links {
-    padding: 1rem 1.25rem 1.5rem;
+  .hero-headline {
+    font-size: 1.75rem;
   }
 
-  .tilted-cert-card {
-    max-width: 100%;
-    padding: 1.25rem 0.875rem;
-    min-height: 190px;
+  .section-title {
+    font-size: 1.625rem;
   }
 
-  .cert-mock-name {
-    font-size: 1.875rem;
-  }
-
-  .cert-mock-textbox {
-    padding: 0.5rem 1rem;
+  .cta-band-title {
+    font-size: 1.5rem;
   }
 }
