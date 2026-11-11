@@ -13,6 +13,7 @@ const SIZE_WORDS = ['Small', 'Medium-small', 'Medium', 'Large', 'Extra large'];
 
 export function renderPropertiesPanel(el, layer, {
   columns = ['Name'],
+  layerCount = 1,
   templateColors = [],
   sampleText = '',
   bgUnderLayer = null,
@@ -24,6 +25,11 @@ export function renderPropertiesPanel(el, layer, {
   onToggleLock
 } = {}) {
   if (!el) return;
+
+  if (!layer && layerCount === 0) {
+    el.innerHTML = '';
+    return;
+  }
 
   if (!layer) {
     el.innerHTML = `

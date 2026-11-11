@@ -3,7 +3,7 @@
  * Displays layers ordered front-to-back (reverse of internal drawing order).
  */
 
-export function renderLayersPanel(el, layers = [], selectedId = null, { onSelect }) {
+export function renderLayersPanel(el, layers = [], selectedId = null, { onSelect, missingNameColumn = null, onAddNameField } = {}) {
   if (!el) return;
 
   const reversed = [...layers].reverse();
@@ -13,6 +13,16 @@ export function renderLayersPanel(el, layers = [], selectedId = null, { onSelect
       <div class="layers-panel-header">
         <span class="section-label">Layers (${layers.length})</span>
       </div>
+      ${missingNameColumn ? `
+        <div class="name-field-callout" role="note">
+          <p class="name-field-callout-text">No text prints your <strong>${escapeHtml(missingNameColumn)}</strong> column, so every certificate will come out without a name.</p>
+          <button type="button" class="name-field-callout-btn" id="btn-add-name-field">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v2a1.5 1.5 0 0 1-3 0V7h-3.5v10H15a1.5 1.5 0 0 1 0 3H9a1.5 1.5 0 0 1 0-3h1.5V7H7v.5a1.5 1.5 0 0 1-3 0v-2z"/></svg>
+            Add name field
+          </button>
+        </div>` : ''}
+      ${layers.length === 0 && !missingNameColumn ? `
+        <p class="layers-empty-hint">No layers yet. Add text, an image or a shape from the toolbar.</p>` : ''}
       <div class="layers-list" role="listbox" aria-label="Project layers">
         ${reversed.map(layer => {
           const isSelected = layer.id === selectedId;
@@ -51,6 +61,9 @@ export function renderLayersPanel(el, layers = [], selectedId = null, { onSelect
       </div>
     </div>
   `;
+
+  const addNameBtn = el.querySelector('#btn-add-name-field');
+  if (addNameBtn && onAddNameField) addNameBtn.addEventListener('click', onAddNameField);
 
   el.querySelectorAll('.layer-list-item').forEach(item => {
     item.addEventListener('click', () => {

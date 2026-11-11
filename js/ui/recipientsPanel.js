@@ -13,6 +13,7 @@ import {
   longestRowIndex
 } from '../model/recipients.js';
 import { showConfirmDialog } from './confirmDialog.js';
+import { layersUseColumn } from '../model/layers.js';
 
 export const SAMPLE_ROWS = [
   { Name: 'Jade Cataya', Course: 'UI/UX Design', Date: 'March 2026' },
@@ -31,6 +32,7 @@ export function renderRecipientsPanel(el, recipients, {
   currentRow = 0,
   onChange,
   onShowRow,
+  onAddNameField,
   onReviewClick
 } = {}) {
   if (!el) return;
@@ -112,7 +114,7 @@ export function renderRecipientsPanel(el, recipients, {
   renderTablePreview(el.querySelector('#table-preview-wrapper'), recipients, currentRow, onShowRow);
 
   // Render Data Checks
-  renderChecksList(el.querySelector('#checks-list-container'), recipients, layers, reports, onShowRow);
+  renderChecksList(el.querySelector('#checks-list-container'), recipients, layers, reports, onShowRow, onAddNameField);
 
   bindEvents(el, recipients, { onChange, onShowRow, onReviewClick });
 }
@@ -121,7 +123,8 @@ export function updateRecipientsDerived(el, recipients, {
   layers = [],
   reports = [],
   currentRow = 0,
-  onShowRow
+  onShowRow,
+  onAddNameField
 } = {}) {
   if (!el) return;
 
@@ -171,7 +174,7 @@ export function updateRecipientsDerived(el, recipients, {
   // 6. Update data checks
   const checksContainer = el.querySelector('#checks-list-container');
   if (checksContainer) {
-    renderChecksList(checksContainer, recipients, layers, reports, onShowRow);
+    renderChecksList(checksContainer, recipients, layers, reports, onShowRow, onAddNameField);
   }
 }
 
@@ -235,7 +238,7 @@ function renderTablePreview(container, recipients, currentRow, onShowRow) {
   }
 }
 
-function renderChecksList(container, recipients, layers, reports, onShowRow) {
+function renderChecksList(container, recipients, layers, reports, onShowRow, onAddNameField) {
   if (!container) return;
   container.innerHTML = '';
 
@@ -248,11 +251,21 @@ function renderChecksList(container, recipients, layers, reports, onShowRow) {
   const nameCol = detectNameColumn(recipients.columns);
 
   // 1. Check if any text layer uses the name column
-  const nameUsed = layers.some(l => l.type === 'text' && new RegExp(`\\{${nameCol}\\}`, 'i').test(l.text || ''));
+  const nameUsed = layersUseColumn(layers, nameCol);
   if (!nameUsed) {
     const li = document.createElement('li');
-    li.className = 'check-item check-warn';
-    li.textContent = `⚠ No text uses your ${nameCol} column`;
+    li.className = 'check-item check-warn check-with-action';
+    const msg = document.createElement('span');
+    msg.textContent = `⚠ No text uses your ${nameCol} column`;
+    li.appendChild(msg);
+    if (onAddNameField) {
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'btn-text-link';
+      addBtn.textContent = 'Add name field';
+      addBtn.addEventListener('click', onAddNameField);
+      li.appendChild(addBtn);
+    }
     ul.appendChild(li);
   }
 

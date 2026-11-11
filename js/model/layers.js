@@ -8,7 +8,7 @@ export function createId() {
   return 'L' + Math.random().toString(36).slice(2, 9);
 }
 
-export function createNameLayer(column = 'Name') {
+export function createNameLayer(column = 'Name', overrides = {}) {
   return {
     id: createId(),
     type: 'text',
@@ -22,8 +22,16 @@ export function createNameLayer(column = 'Name') {
     xPct: 20,
     yPct: 45,
     wPct: 60,
-    hPct: 15
+    hPct: 15,
+    ...overrides
   };
+}
+
+/** True if any text layer prints the given recipients column ({Column} token). */
+export function layersUseColumn(layers = [], column = 'Name') {
+  const want = `{${String(column).trim().toLowerCase()}}`;
+  return layers.some(l => l.type === 'text' && typeof l.text === 'string' &&
+    (l.text.toLowerCase().match(/\{[^}]+\}/g) || []).some(tok => tok.replace(/\{\s*|\s*\}/g, m => m.trim()) === want));
 }
 
 export function createTextLayer(overrides = {}) {
