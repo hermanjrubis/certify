@@ -100,8 +100,18 @@
 }
 
 /* ---------- Hero ---------- */
+/* The hero fills the first screen: nothing from the next section peeks in */
 .hero {
-  padding: 4.5rem 0 4rem;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: calc(100vh - 4.25rem - 1px);
+  min-height: calc(100svh - 4.25rem - 1px);
+  padding: 3rem 0;
+}
+
+.hero > .home-container {
+  width: 100%;
 }
 
 .hero-grid {
@@ -603,6 +613,40 @@
   border-radius: 4px;
 }
 
+/* ---------- Wide screens: let the hero use the space ---------- */
+@media (min-width: 1600px) {
+  .home-container {
+    max-width: 1440px;
+  }
+
+  .hero-title {
+    font-size: 4.75rem;
+  }
+
+  .hero-lede {
+    font-size: 1.25rem;
+    max-width: 38rem;
+  }
+
+  .merge-demo {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+
+  .roster-row {
+    font-size: 0.9375rem;
+    min-height: 2.5rem;
+  }
+
+  .demo-cert-namebox {
+    --name-max: 60;
+    height: 4.75rem;
+  }
+
+  .demo-cert-line {
+    font-size: 0.875rem;
+  }
+}
+
 /* ---------- Tablet ---------- */
 @media (max-width: 980px) {
   .hero-grid {
@@ -658,6 +702,7 @@
   }
 
   .hero {
+    align-items: flex-start;
     padding: 2.5rem 0 3rem;
   }
 
