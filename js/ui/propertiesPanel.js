@@ -20,7 +20,8 @@ export function renderPropertiesPanel(el, layer, {
   onChange,
   onMoveLayer,
   onDuplicateLayer,
-  onRemoveLayer
+  onRemoveLayer,
+  onToggleLock
 } = {}) {
   if (!el) return;
 
@@ -44,28 +45,27 @@ export function renderPropertiesPanel(el, layer, {
       </div>
 
       <div class="properties-footer">
-        <div class="layer-actions-group">
-          <button type="button" class="btn-icon btn-sm" id="btn-bring-forward" aria-label="Bring forward" title="Bring forward">
-            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="18 15 12 9 6 15"/>
-            </svg>
-          </button>
-          <button type="button" class="btn-icon btn-sm" id="btn-send-backward" aria-label="Send backward" title="Send backward">
-            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
-          <button type="button" class="btn-icon btn-sm" id="btn-duplicate-layer" aria-label="Duplicate layer" title="Duplicate layer">
-            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-            </svg>
-          </button>
-          <button type="button" class="btn-icon btn-sm btn-action-danger" id="btn-delete-layer" aria-label="Delete layer" title="Delete layer">
-            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
+        <span class="properties-footer-label">Arrange</span>
+        <div class="properties-footer-row">
+          <div class="arrange-group" role="group" aria-label="Arrange layer">
+            <button type="button" class="arrange-btn" id="btn-bring-forward" aria-label="Bring forward" title="Bring forward (Ctrl+])">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/><path d="M14 16v-5M11.5 13.5 14 11l2.5 2.5"/></svg>
+            </button>
+            <button type="button" class="arrange-btn" id="btn-send-backward" aria-label="Send backward" title="Send backward (Ctrl+[)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/><path d="M14 11v5M11.5 13.5 14 16l2.5-2.5"/></svg>
+            </button>
+            <button type="button" class="arrange-btn" id="btn-duplicate-layer" aria-label="Duplicate layer" title="Duplicate (Ctrl+D)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/><path d="M14.5 11.5v6M11.5 14.5h6"/></svg>
+            </button>
+            <button type="button" class="arrange-btn ${layer.locked ? 'is-on' : ''}" id="btn-lock-layer" aria-pressed="${layer.locked ? 'true' : 'false'}" aria-label="${layer.locked ? 'Unlock position' : 'Lock position'}" title="${layer.locked ? 'Unlock' : 'Lock position'} (Ctrl+Shift+L)">
+              ${layer.locked
+                ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+                : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'}
+            </button>
+          </div>
+          <button type="button" class="btn-delete-layer" id="btn-delete-layer" ${layer.locked ? 'disabled title="Unlock to delete"' : 'title="Delete (Del)"'}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>
+            Delete
           </button>
         </div>
       </div>
@@ -81,7 +81,8 @@ export function renderPropertiesPanel(el, layer, {
     onChange,
     onMoveLayer,
     onDuplicateLayer,
-    onRemoveLayer
+    onRemoveLayer,
+    onToggleLock
   });
 }
 
@@ -252,7 +253,7 @@ function renderTypeProperties(layer, { columns, templateColors, sampleText, bgUn
 function renderColorControl(currentColor, templateColors, propName, { bgUnderLayer = null, isFill = false } = {}) {
   const isNone = isFill && (!currentColor || currentColor === 'transparent' || currentColor === 'none');
   const normCurrent = isNone ? 'transparent' : (normalizeHex(currentColor) || '#1F2A1B');
-  const validTemplate = (templateColors || []).slice(0, 5);
+  const validTemplate = (templateColors || []).slice(0, 6);
 
   let warningHtml = '';
   if (propName === 'color' && bgUnderLayer) {
@@ -269,24 +270,28 @@ function renderColorControl(currentColor, templateColors, propName, { bgUnderLay
 
   return `
     <div class="color-row-compact" data-prop="${propName}">
-      ${isFill ? `
-        <button type="button" class="color-chip-btn color-chip-btn-none ${isNone ? 'active' : ''}" id="btn-fill-none" title="No fill" aria-label="No fill"></button>
-      ` : ''}
-      <button type="button" class="color-chip-btn" id="btn-color-chip-${propName}" aria-label="${propName} color ${normCurrent}, open color picker" style="background-color: ${isNone ? '#FFFFFF' : normCurrent};">
-        <span class="color-chip-chevron">▾</span>
-      </button>
-      <button type="button" class="btn-quick-eyedropper" id="btn-eyedropper-quick-${propName}" title="Pick color from template" aria-label="Pick color from template">
-        <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m14 2 4 4-8 8H6v-4l8-8z"/>
-          <path d="M18 6l2 2"/>
-          <path d="M4 20h4"/>
-        </svg>
-      </button>
+      <div class="color-field-row">
+        ${isFill ? `
+          <button type="button" class="color-chip-btn color-chip-btn-none ${isNone ? 'active' : ''}" id="btn-fill-none" title="No fill" aria-label="No fill"></button>
+        ` : ''}
+        <button type="button" class="color-field-btn" id="btn-color-chip-${propName}" aria-label="${propName} color ${isNone ? 'none' : normCurrent}, open color picker">
+          <span class="color-field-swatch ${isNone ? 'is-none' : ''}" style="background-color: ${isNone ? '#FFFFFF' : normCurrent};"></span>
+          <span class="color-field-hex">${isNone ? 'No fill' : normCurrent.toUpperCase()}</span>
+          <svg class="color-field-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button type="button" class="btn-quick-eyedropper" id="btn-eyedropper-quick-${propName}" title="Pick a color from your template" aria-label="Pick a color from your template">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 4 6 6"/><path d="M17 7 7.5 16.5 4 20l3.5-3.5"/><path d="M12.5 5.5 18.5 11.5"/><path d="m15 3 6 6-2 2-6-6z"/></svg>
+        </button>
+      </div>
       ${validTemplate.length > 0 ? `
-        <span class="color-row-divider"></span>
-        ${validTemplate.map(hex => `
-          <button type="button" class="quick-swatch ${normCurrent.toLowerCase() === hex.toLowerCase() ? 'active' : ''}" data-hex="${hex}" style="background-color: ${hex};" title="Template color ${hex}" aria-label="${hex}"></button>
-        `).join('')}
+        <div class="color-template-row">
+          <span class="color-template-label">From your template</span>
+          <div class="color-template-swatches">
+            ${validTemplate.map(hex => `
+              <button type="button" class="quick-swatch ${normCurrent.toLowerCase() === hex.toLowerCase() ? 'active' : ''}" data-hex="${hex}" style="background-color: ${hex};" title="${hex}" aria-label="Use ${hex}"></button>
+            `).join('')}
+          </div>
+        </div>
       ` : ''}
     </div>
     ${warningHtml}
@@ -302,8 +307,14 @@ function bindEvents(el, layer, {
   onChange,
   onMoveLayer,
   onDuplicateLayer,
-  onRemoveLayer
+  onRemoveLayer,
+  onToggleLock
 }) {
+  const btnLock = el.querySelector('#btn-lock-layer');
+  if (btnLock && onToggleLock) {
+    btnLock.addEventListener('click', () => onToggleLock(layer.id));
+  }
+
   // Footer arrangement buttons
   const btnBringForward = el.querySelector('#btn-bring-forward');
   const btnSendBackward = el.querySelector('#btn-send-backward');

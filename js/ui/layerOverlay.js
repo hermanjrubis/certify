@@ -7,10 +7,11 @@ export class LayerOverlay {
    * @param {HTMLElement} viewportEl - The canvas container / viewport element
    * @param {object} callbacks - { onSelect(id|null), onChange(id, patch|null, { commit: boolean }) }
    */
-  constructor(viewportEl, { onSelect, onChange }) {
+  constructor(viewportEl, { onSelect, onChange, onContextMenu }) {
     this.viewportEl = viewportEl;
     this.onSelect = onSelect;
     this.onChange = onChange;
+    this.onContextMenu = onContextMenu;
 
     this.layers = [];
     this.selectedId = null;
@@ -46,14 +47,16 @@ export class LayerOverlay {
       const isBoundText = layer.type === 'text' && /\{[^}]+\}/.test(layer.text);
 
       const box = document.createElement('div');
-      box.className = `layer-box ${isSelected ? 'selected' : ''} ${!isSelected && isBoundText ? 'bound-text' : ''}`;
+      box.className = `layer-box ${isSelected ? 'selected' : ''} ${!isSelected && isBoundText ? 'bound-text' : ''} ${layer.locked ? 'locked' : ''}`;
       box.dataset.id = layer.id;
       box.style.left = `${layer.xPct}%`;
       box.style.top = `${layer.yPct}%`;
       box.style.width = `${layer.wPct}%`;
       box.style.height = `${layer.hPct}%`;
 
-      if (isSelected) {
+      if (isSelected && layer.locked) {
+        box.innerHTML = `<span class="layer-lock-badge" title="Locked: right-click to unlock" aria-label="Locked"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>`;
+      } else if (isSelected) {
         box.innerHTML = `
           <div class="layer-handle handle-nw" data-handle="nw" aria-label="Resize North-West"></div>
           <div class="layer-handle handle-ne" data-handle="ne" aria-label="Resize North-East"></div>
@@ -73,9 +76,14 @@ export class LayerOverlay {
 
       if (!box && !handle) {
         // Click on empty canvas
+        this.pressStartedOnLayer = false;
         if (this.onSelect) this.onSelect(null);
         return;
       }
+
+      // The click that follows this press must not count as an empty-canvas click,
+      // even if the pointer is released elsewhere (e.g. dragging a locked layer).
+      this.pressStartedOnLayer = true;
 
       e.preventDefault();
       e.stopPropagation();
@@ -88,6 +96,10 @@ export class LayerOverlay {
       if (this.selectedId !== layerId) {
         if (this.onSelect) this.onSelect(layerId);
       }
+
+      // Right button only selects (the context menu opens on 'contextmenu');
+      // locked layers can be selected but not moved or resized.
+      if (e.button === 2 || layer.locked) return;
 
       this.activeLayerId = layerId;
       this.activeAction = handle ? handle.dataset.handle : 'drag';
@@ -141,6 +153,10 @@ export class LayerOverlay {
 
     // Click outside layers inside viewport
     this.handleViewportClick = (e) => {
+      if (this.pressStartedOnLayer) {
+        this.pressStartedOnLayer = false;
+        return;
+      }
       if (!e.target.closest('.layer-box')) {
         if (this.onSelect) this.onSelect(null);
       }
@@ -156,15 +172,8 @@ export class LayerOverlay {
 
       if (!this.selectedId) return;
       const layer = this.layers.find(l => l.id === this.selectedId);
-      if (!layer) return;
-
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        e.preventDefault();
-        if (this.onChange) {
-          this.onChange(this.selectedId, null, { commit: true });
-        }
-        return;
-      }
+      // Delete/Backspace are handled by the editor's global shortcuts
+      if (!layer || layer.locked) return;
 
       const step = e.shiftKey ? 2 : 0.5;
       let dx = 0;
@@ -191,6 +200,19 @@ export class LayerOverlay {
     };
 
     this.viewportEl.addEventListener('keydown', this.handleKeyDown);
+
+    this.handleContextMenu = (e) => {
+      if (!this.onContextMenu) return;
+      e.preventDefault();
+      const box = e.target.closest('.layer-box');
+      const rect = this.viewportEl.getBoundingClientRect();
+      const xPct = rect.width ? ((e.clientX - rect.left) / rect.width) * 100 : 50;
+      const yPct = rect.height ? ((e.clientY - rect.top) / rect.height) * 100 : 50;
+      const id = box ? box.dataset.id : null;
+      if (id && id !== this.selectedId && this.onSelect) this.onSelect(id);
+      this.onContextMenu({ id, clientX: e.clientX, clientY: e.clientY, xPct, yPct });
+    };
+    this.viewportEl.addEventListener('contextmenu', this.handleContextMenu);
   }
 
   handlePointerMove(e) {
@@ -317,6 +339,7 @@ export class LayerOverlay {
     if (this.viewportEl) {
       this.viewportEl.removeEventListener('click', this.handleViewportClick);
       this.viewportEl.removeEventListener('keydown', this.handleKeyDown);
+      this.viewportEl.removeEventListener('contextmenu', this.handleContextMenu);
     }
   }
 }

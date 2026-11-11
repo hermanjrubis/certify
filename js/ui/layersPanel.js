@@ -44,7 +44,7 @@ export function renderLayersPanel(el, layers = [], selectedId = null, { onSelect
                  aria-selected="${isSelected}">
               <span class="layer-type-badge ${badgeClass}">${badge}</span>
               <span class="layer-item-name">${escapeHtml(layer.name || 'Layer')}</span>
-              ${columnChip}
+              ${columnChip}${layer.locked ? '<span class="layer-lock-icon" title="Locked" aria-label="Locked"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>' : ''}
             </div>
           `;
         }).join('')}
