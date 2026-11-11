@@ -72,7 +72,7 @@ button:disabled {
   padding: 0 1.35rem;
   border-radius: var(--radius-pill);
   font-family: var(--font-ui);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9375rem;
   line-height: 1;
   text-decoration: none;
@@ -86,18 +86,19 @@ button:disabled {
 .btn-primary {
   background-color: var(--accent-strong);
   color: var(--text-on-accent);
-  box-shadow: 0 2px 6px rgba(58, 133, 49, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--accent-strong-hover);
-  box-shadow: 0 4px 10px rgba(58, 133, 49, 0.35);
-  transform: translateY(-1px);
 }
 
 .btn-primary:active:not(:disabled) {
   background-color: var(--accent-strong-hover);
-  transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
 }
 
 .btn-secondary {
