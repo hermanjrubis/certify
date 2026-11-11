@@ -17,24 +17,20 @@ export function renderAddToolbar(el, {
     <div class="add-toolbar-container">
       <div class="add-buttons-group">
         <button type="button" class="btn btn-secondary btn-sm" id="btn-add-text" title="Add text layer">
-          <span class="btn-icon-glyph">T</span>
-          Add text
+          <span class="btn-icon-glyph">+</span>
+          Text
         </button>
 
         <button type="button" class="btn btn-secondary btn-sm" id="btn-add-image" title="Add image (signature, logo, stamp)">
-          <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add image
+          <span class="btn-icon-glyph">+</span>
+          Image
           <input type="file" id="image-layer-file-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
         </button>
 
         <div class="shape-menu-wrapper">
           <button type="button" class="btn btn-secondary btn-sm" id="btn-add-shape" aria-haspopup="true" aria-expanded="false" title="Add shape layer">
-            <span class="btn-icon-glyph">□</span>
-            Add shape ▾
+            <span class="btn-icon-glyph">+</span>
+            Shape ▾
           </button>
           <div class="shape-dropdown-menu" id="shape-dropdown-menu" role="menu" style="display: none;">
             <button type="button" class="menu-item" role="menuitem" data-shape="line">

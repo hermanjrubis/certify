@@ -615,6 +615,17 @@ class CertifyApp {
       activeStep = 4;
       done = [1, 2, 3];
     }
+    if (this.mobileStepIndicator) {
+      const stepNames = { 1: 'Template', 2: 'Design', 3: 'Recipients', 4: 'Review & export' };
+      this.mobileStepIndicator.textContent = `Step ${activeStep} of 4 · ${stepNames[activeStep] || 'Design'}`;
+    }
+    if (this.mobileDataCount) {
+      this.mobileDataCount.textContent = rowCount;
+    }
+    if (this.mobileReviewBadge) {
+      this.mobileReviewBadge.textContent = rowCount;
+    }
+
     renderStepper(this.stepperMount, activeStep, done, {
       onStepClick: (stepNum) => {
         if (stepNum === 2) {
@@ -717,10 +728,13 @@ class CertifyApp {
     if (!this.leftPanelMount || !this.rightPanelMount) return;
 
     if (isMobile) {
+      if (this.addToolbarMount && this.layersPanelMount && this.addToolbarMount.parentElement !== this.leftPanelMount) {
+        this.leftPanelMount.insertBefore(this.addToolbarMount, this.layersPanelMount);
+      }
       if (this.mobileTab === 'layers') {
         this.leftPanelMount.style.display = 'block';
         this.rightPanelMount.style.display = 'none';
-        if (this.addToolbarMount) this.addToolbarMount.style.display = '';
+        if (this.addToolbarMount) this.addToolbarMount.style.display = 'flex';
         if (this.layersPanelMount) this.layersPanelMount.style.display = '';
         if (this.propertiesPanelMount) this.propertiesPanelMount.style.display = 'none';
       } else if (this.mobileTab === 'style') {
@@ -734,6 +748,11 @@ class CertifyApp {
         this.rightPanelMount.style.display = 'block';
       }
     } else {
+      const stageWrapper = document.querySelector('.canvas-stage-wrapper');
+      const viewportContainer = document.querySelector('#canvas-viewport-container');
+      if (this.addToolbarMount && stageWrapper && viewportContainer && this.addToolbarMount.parentElement !== stageWrapper) {
+        stageWrapper.insertBefore(this.addToolbarMount, viewportContainer);
+      }
       this.leftPanelMount.style.display = '';
       this.rightPanelMount.style.display = '';
       if (this.addToolbarMount) this.addToolbarMount.style.display = '';
@@ -746,10 +765,13 @@ class CertifyApp {
     if (this.saveStatusText) {
       this.saveStatusText.textContent = 'Saving…';
     }
+    const savedDot = document.getElementById('header-saved-dot');
+    if (savedDot) savedDot.style.opacity = '0.4';
     this.storage.save(this.state.project, immediate).then(() => {
       if (this.saveStatusText) {
         this.saveStatusText.textContent = 'Saved in this browser';
       }
+      if (savedDot) savedDot.style.opacity = '1';
     });
   }
 

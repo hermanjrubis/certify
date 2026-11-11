@@ -33,6 +33,14 @@
   flex-shrink: 0;
 }
 
+.header-back-arrow-mobile {
+  display: none;
+}
+
+.header-saved-dot {
+  display: none;
+}
+
 .brand-logo-img {
   height: 42px;
   max-height: 42px;
@@ -2526,26 +2534,133 @@
    ========================================================================== */
 @media (max-width: 760px) {
   .app-header {
-    padding: 0.4rem 0.75rem;
-    min-height: 52px;
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    padding: 0 8px;
     position: sticky;
     top: 0;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-hairline);
+    box-sizing: border-box;
+  }
+
+  .header-brand-desktop {
+    display: none !important;
+  }
+
+  .header-back-arrow-mobile {
+    display: flex !important;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    text-decoration: none;
+    flex-shrink: 0;
   }
 
   .app-header-brand-group {
-    gap: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
   }
 
-  .brand-logo-img {
-    height: 30px;
-    max-height: 30px;
+  .project-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    gap: 1px;
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .project-title-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .project-title-row .pencil-icon {
+    flex-shrink: 0;
+    opacity: 0.5;
   }
 
   .project-title-input {
-    width: 105px;
-    font-size: 0.8125rem;
-    padding: 0.15rem 0.35rem;
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .mobile-step-indicator {
+    display: block !important;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-header-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+
+  .header-more-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 20px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-primary);
+  }
+
+  .header-saved-dot {
+    display: block !important;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-strong);
+    box-shadow: 0 0 0 1.5px var(--bg-card);
   }
 
   .app-header-stepper-mount {
@@ -2560,14 +2675,6 @@
     display: none !important;
   }
 
-  .mobile-step-indicator {
-    display: inline-block;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-
   /* 4px Mobile Progress Bar */
   .mobile-progress-bar {
     display: block;
@@ -2575,7 +2682,7 @@
     height: 4px;
     background: var(--border-hairline);
     position: sticky;
-    top: 52px;
+    top: 56px;
     z-index: 999;
   }
 
@@ -2612,19 +2719,23 @@
   .canvas-stage-wrapper {
     order: -1;
     position: sticky;
-    top: 56px;
+    top: 60px;
     z-index: 150;
     background: var(--bg-card);
     border: none;
     border-bottom: 1px solid var(--border-hairline);
     border-radius: 0;
-    padding: 0.5rem 0.75rem 0;
+    padding: 12px 12px 0;
     height: auto;
     max-height: min(48vh, 360px);
-    min-height: auto;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
     width: 100%;
+  }
+
+  /* Above-canvas toolbar hidden in canvas stage on mobile */
+  .canvas-stage-wrapper .canvas-stage-toolbar-mount {
+    display: none !important;
   }
 
   .canvas-viewport-container {
@@ -2636,42 +2747,48 @@
   }
 
   #preview-canvas {
-    max-height: none;
-    max-width: none;
     width: 100%;
     height: 100%;
   }
 
   .row-switcher-bar {
-    margin-top: 0.35rem;
-    padding: 0.2rem 0.5rem;
+    margin-top: 6px;
+    padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
   }
 
-  /* Mobile Tabs Bar */
+  /* Mobile Tabs Bar - 48px sticky directly under canvas */
   .mobile-tabs-bar {
     display: flex;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
     background: var(--bg-card);
     border-top: 1px solid var(--border-hairline);
-    margin-top: 0.35rem;
+    margin: 8px 0 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
   .mobile-tab-btn {
     flex: 1;
-    min-height: 44px;
+    height: 48px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
-    font-size: 0.8125rem;
+    font-size: 14px;
     font-weight: 500;
     color: var(--text-secondary);
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
     cursor: pointer;
-    margin-bottom: -1px;
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
     transition: all var(--transition-fast);
   }
 
@@ -2683,9 +2800,50 @@
 
   /* Side panels on phone */
   .editor-side-panel {
-    padding: 0.75rem 0.75rem 4.5rem;
+    padding: 12px 12px 90px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  /* Layers Tab: Add Toolbar as 3-button row (+ Text, + Image, + Shape) with Undo/Redo */
+  .editor-side-panel .add-toolbar-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0 0 10px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-hairline);
+    box-sizing: border-box;
+  }
+
+  .editor-side-panel .add-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .editor-side-panel .add-buttons-group .btn {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .editor-side-panel .toolbar-divider {
+    display: none;
+  }
+
+  .editor-side-panel .undo-redo-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .properties-panel-container {
@@ -2705,16 +2863,19 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0.65rem 1rem;
+    padding: 8px 16px max(8px, env(safe-area-inset-bottom, 8px));
     background: var(--bg-card);
     border-top: 1px solid var(--border-hairline);
     box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08);
     z-index: 300;
+    box-sizing: border-box;
   }
 
   #btn-mobile-review-download {
-    height: 2.75rem;
-    font-size: 0.9375rem;
+    height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
   }
 
   /* Review View Responsive */
