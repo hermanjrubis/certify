@@ -144,3 +144,4 @@ export function renderAddToolbar(el, {
   if (btnUndo && onUndo) btnUndo.addEventListener('click', onUndo);
   if (btnRedo && onRedo) btnRedo.addEventListener('click', onRedo);
 }
+

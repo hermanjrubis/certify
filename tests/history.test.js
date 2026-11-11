@@ -75,3 +75,4 @@ test('history limit drops oldest entries', () => {
   assert.deepEqual(history.undo(), { val: 'B' });
   assert.equal(history.undo(), null);
 });
+

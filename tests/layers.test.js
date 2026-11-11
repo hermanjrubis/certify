@@ -118,3 +118,4 @@ test('migrateProject handles invalid input and v2 defaults', () => {
     fileName: null
   });
 });
+

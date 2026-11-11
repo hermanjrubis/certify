@@ -32,3 +32,4 @@ export function renderStepper(el, activeStep = 1, done = []) {
     </nav>
   `;
 }
+

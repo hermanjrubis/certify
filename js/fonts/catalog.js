@@ -190,3 +190,4 @@ export function searchFonts(query = '', categoryId = null) {
     return true;
   });
 }
+

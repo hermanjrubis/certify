@@ -27,3 +27,4 @@ test('resolveSafePath rejects traversal attempts', () => {
   assert.equal(resolveSafePath(ROOT_DIR, '/%2e%2e%2fpackage.json'), null);
   assert.equal(resolveSafePath(ROOT_DIR, '/css/../../secret.txt'), null);
 });
+

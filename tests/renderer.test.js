@@ -190,3 +190,4 @@ test('row = null renders Recipient Name placeholder', () => {
   assert.ok(fillTextCall);
   assert.equal(fillTextCall.text, 'Recipient Name');
 });
+

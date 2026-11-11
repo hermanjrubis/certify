@@ -23,3 +23,4 @@ test('sanitizeFilename falls back to Certificate for empty/blank names', () => {
   assert.equal(sanitizeFilename('', {}), 'Certificate.png');
   assert.equal(sanitizeFilename(null, {}), 'Certificate.png');
 });
+

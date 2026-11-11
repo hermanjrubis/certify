@@ -83,3 +83,4 @@ test('searchFonts filters by substring and category', () => {
   assert.equal(unknown.weight, 400);
   assert.equal(unknown.category, null);
 });
+

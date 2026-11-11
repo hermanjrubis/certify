@@ -265,3 +265,4 @@ export function openFontPicker(anchorEl, { value, sampleText = '', onPick, onClo
   activePicker = { close };
   return activePicker;
 }
+

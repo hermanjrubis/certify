@@ -46,3 +46,4 @@ export function createHistory(limit = 50) {
     }
   };
 }
+

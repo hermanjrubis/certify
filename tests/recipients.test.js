@@ -108,3 +108,4 @@ test('longestRowIndex returns index of row with longest resolved text', () => {
   assert.equal(longestRowIndex(rows, layers), 1);
   assert.equal(longestRowIndex([], layers), -1);
 });
+

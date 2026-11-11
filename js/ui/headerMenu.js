@@ -72,3 +72,4 @@ export function initHeaderMenu(buttonEl, dropdownEl, { onNewProject, onExportPro
     close: closeMenu
   };
 }
+
