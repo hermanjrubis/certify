@@ -1679,6 +1679,249 @@
 }
 
 /* ==========================================================================
+   Review & Export Screen
+   ========================================================================== */
+.review-view-container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.review-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.review-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.review-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.review-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.review-search-input {
+  width: 180px;
+  height: 2rem;
+  font-size: 0.8125rem;
+  padding: 0 0.65rem;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.review-cert-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.review-cert-card:hover, .review-cert-card:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-card);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.review-card-thumb {
+  width: 100%;
+  aspect-ratio: 1.414;
+  background: var(--bg-subtle);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-card-thumb canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.review-card-meta {
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.review-card-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.review-shrunk-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-pill);
+  background: #FFF4E5;
+  color: #B25E00;
+  border: 1px solid #FFE0B2;
+}
+
+.review-empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  grid-column: 1 / -1;
+}
+
+/* Side Summary Card */
+.review-side-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-subtle);
+}
+
+.side-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.side-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.detail-label {
+  color: var(--text-secondary);
+}
+
+.detail-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detail-value.mono {
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
+.btn-download-zip {
+  height: 2.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.privacy-guarantee-note {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.privacy-check-icon {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+/* Full Size Modal */
+.fullsize-modal-card {
+  max-width: 1040px;
+  width: 95vw;
+}
+
+.fullsize-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.fullsize-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fullsize-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fullsize-canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  max-height: calc(85vh - 120px);
+  overflow: auto;
+}
+
+.fullsize-canvas-container canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-card);
+}
+
+/* ==========================================================================
    Upload View State (Empty State)
    ========================================================================== */
 .upload-view-container {

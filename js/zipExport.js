@@ -1,11 +1,39 @@
 /**
  * Batch ZIP Export Module
  * Renders all certificates at full native resolution onto an offscreen canvas,
- * converts to PNG blobs, packages with JSZip, and triggers browser download.
+ * converts to PNG blobs, packages with JSZip using STORE compression, and triggers browser download.
  */
 
 import { renderCertificate } from './certificateRenderer.js';
+import { ensureFonts } from './fontLoader.js';
 import { icons } from './icons.js';
+
+/**
+ * Cleans names for safe cross-platform file paths and resolves duplicates.
+ *
+ * @param {string} rawName
+ * @param {Record<string, number>} counts
+ * @returns {string} Safe unique filename (e.g. "Name.png" or "Name (2).png")
+ */
+export function sanitizeFilename(rawName, counts = {}) {
+  let clean = (rawName || '')
+    .replace(/[/\\?%*:|"<>]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+
+  if (!clean) {
+    clean = 'Certificate';
+  }
+
+  const baseKey = clean.toLowerCase();
+  if (counts[baseKey]) {
+    counts[baseKey]++;
+    return `${clean} (${counts[baseKey]}).png`;
+  } else {
+    counts[baseKey] = 1;
+    return `${clean}.png`;
+  }
+}
 
 export class ZipExporter {
   constructor() {
@@ -14,38 +42,14 @@ export class ZipExporter {
   }
 
   /**
-   * Cleans names for safe cross-platform file paths and resolves duplicates.
-   * 
-   * @param {string} rawName 
-   * @param {Record<string, number>} nameCounts 
-   * @returns {string} Safe unique filename
-   */
-  sanitizeFilename(rawName, nameCounts) {
-    let clean = (rawName || '')
-      .replace(/[/\\?%*:|"<>]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    if (!clean) {
-      clean = 'Certificate';
-    }
-
-    const count = (nameCounts[clean] || 0) + 1;
-    nameCounts[clean] = count;
-
-    if (count > 1) {
-      return `${clean} (${count}).png`;
-    }
-    return `${clean}.png`;
-  }
-
-  /**
    * Main export method
-   * 
+   *
    * @param {object} options
    * @param {HTMLImageElement} options.templateImg
-   * @param {object} options.textField
-   * @param {string[]} options.names
+   * @param {Array} options.layers
+   * @param {Map|object} options.images
+   * @param {Array<object>} options.rows
+   * @param {string} options.nameColumn
    * @param {string} [options.zipFileName='certificates.zip']
    * @param {Function} [options.onComplete]
    * @param {Function} [options.onError]
@@ -53,70 +57,73 @@ export class ZipExporter {
   async exportZip(options) {
     const {
       templateImg,
-      textField,
-      names,
+      layers = [],
+      images = null,
+      rows = [],
+      nameColumn = 'Name',
       zipFileName = 'certificates.zip',
       onComplete,
       onError
     } = options;
 
-    if (!window.JSZip) {
+    if (!rows || rows.length === 0) {
+      if (onError) onError('Add at least one recipient before exporting.');
+      return;
+    }
+
+    if (typeof window !== 'undefined' && !window.JSZip) {
       const msg = 'JSZip library is not loaded. Please ensure an active internet connection.';
       if (onError) onError(msg);
       return;
     }
 
-    if (!names || names.length === 0) {
-      if (onError) onError('No recipient names provided to export.');
-      return;
-    }
-
     this.isCancelled = false;
-    this.showProgressModal(names.length);
+    this.showProgressModal(rows.length);
 
     try {
+      // Ensure all text layer fonts are loaded before canvas drawing
+      const textFonts = layers.filter(l => l.type === 'text' && l.font).map(l => l.font);
+      await ensureFonts(textFonts);
+
       const zip = new window.JSZip();
       const nameCounts = {};
-      const total = names.length;
+      const total = rows.length;
 
-      // Offscreen canvas at full native resolution
-      const naturalWidth = templateImg.naturalWidth;
-      const naturalHeight = templateImg.naturalHeight;
+      const naturalWidth = templateImg.naturalWidth || templateImg.width || 2000;
+      const naturalHeight = templateImg.naturalHeight || templateImg.height || 1414;
 
       const offscreenCanvas = document.createElement('canvas');
       offscreenCanvas.width = naturalWidth;
       offscreenCanvas.height = naturalHeight;
       const ctx = offscreenCanvas.getContext('2d');
 
-      // Ensure web fonts are fully ready before starting canvas rendering
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
-
-      // Render certificates loop with non-blocking yields
       for (let i = 0; i < total; i++) {
         if (this.isCancelled) {
           this.closeModal();
           return;
         }
 
-        const name = names[i];
-        this.updateProgress(i + 1, total, name, 'Rendering');
+        const row = rows[i];
+        const rawName = row[nameColumn] || Object.values(row)[0] || '';
+        this.updateProgress(i + 1, total, rawName, 'Rendering');
 
-        // Draw certificate at full native resolution
-        renderCertificate(ctx, templateImg, textField, name, naturalWidth, naturalHeight, naturalHeight);
+        renderCertificate(
+          ctx,
+          { templateImg, layers, images },
+          row,
+          { width: naturalWidth, height: naturalHeight }
+        );
 
-        // Convert canvas to PNG blob
         const blob = await new Promise((resolve) => {
           offscreenCanvas.toBlob((b) => resolve(b), 'image/png');
         });
 
         if (blob) {
-          const filename = this.sanitizeFilename(name, nameCounts);
+          const filename = sanitizeFilename(rawName, nameCounts);
           zip.file(filename, blob);
         }
 
-        // Yield to browser thread to keep UI interactive and responsive
+        // Non-blocking yield for UI responsiveness
         await new Promise((resolve) => setTimeout(resolve, 0));
       }
 
@@ -125,14 +132,13 @@ export class ZipExporter {
         return;
       }
 
-      // Packaging phase
       this.updatePackagingProgress(0);
 
+      // STORE compression for PNGs (lossless PNGs are already compressed)
       const zipBlob = await zip.generateAsync(
         {
           type: 'blob',
-          compression: 'DEFLATE',
-          compressionOptions: { level: 4 }
+          compression: 'STORE'
         },
         (metadata) => {
           if (!this.isCancelled) {
@@ -146,14 +152,13 @@ export class ZipExporter {
         return;
       }
 
-      // Trigger download
       this.triggerDownload(zipBlob, zipFileName);
-
       this.showSuccessState();
+
       setTimeout(() => {
         this.closeModal();
         if (typeof onComplete === 'function') onComplete();
-      }, 1400);
+      }, 1200);
 
     } catch (err) {
       console.error('ZIP Export failed:', err);
@@ -165,7 +170,6 @@ export class ZipExporter {
   }
 
   showProgressModal(total) {
-    // Remove existing if any
     this.closeModal();
 
     this.modalEl = document.createElement('div');
@@ -173,7 +177,7 @@ export class ZipExporter {
     this.modalEl.id = 'export-progress-modal';
 
     this.modalEl.innerHTML = `
-      <div class="modal-card export-modal-card" role="dialog" aria-labelledby="export-modal-title">
+      <div class="modal-card export-modal-card" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
         <div class="modal-header">
           <div class="export-header-title">
             <span class="export-icon-badge">${icons.zipArchive(20)}</span>
@@ -211,12 +215,22 @@ export class ZipExporter {
       this.isCancelled = true;
       this.closeModal();
     });
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        this.isCancelled = true;
+        this.closeModal();
+        document.removeEventListener('keydown', handleKeyDown);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    cancelBtn.focus();
   }
 
   updateProgress(current, total, name, stage = 'Rendering') {
     if (!this.modalEl) return;
 
-    const percent = Math.round((current / total) * 90); // 0-90% is rendering
+    const percent = Math.round((current / total) * 90);
     const statusText = this.modalEl.querySelector('#export-status-text');
     const percentText = this.modalEl.querySelector('#export-percent-text');
     const progressBar = this.modalEl.querySelector('#export-progress-bar');
@@ -237,10 +251,10 @@ export class ZipExporter {
     const progressBar = this.modalEl.querySelector('#export-progress-bar');
     const nameText = this.modalEl.querySelector('#export-current-name');
 
-    if (statusText) statusText.textContent = 'Compressing into ZIP archive…';
+    if (statusText) statusText.textContent = 'Packaging ZIP archive…';
     if (percentText) percentText.textContent = `${Math.min(100, overallPercent)}%`;
     if (progressBar) progressBar.style.width = `${Math.min(100, overallPercent)}%`;
-    if (nameText) nameText.textContent = 'Finalizing lossless PNG files…';
+    if (nameText) nameText.textContent = 'Finalizing PNG files…';
   }
 
   showSuccessState() {

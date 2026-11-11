@@ -30,6 +30,8 @@ import { renderLayersPanel } from './ui/layersPanel.js';
 import { renderPropertiesPanel } from './ui/propertiesPanel.js';
 import { renderRecipientsPanel } from './ui/recipientsPanel.js';
 import { renderRowSwitcher } from './ui/rowSwitcher.js';
+import { renderReviewView } from './ui/reviewView.js';
+import { ZipExporter } from './zipExport.js';
 
 class CertifyApp {
   constructor() {
@@ -43,6 +45,7 @@ class CertifyApp {
 
     this.history = createHistory(50);
     this.storage = new ProjectStorage();
+    this.zipExporter = new ZipExporter();
     this.saveTimeout = null;
     this.currentReports = [];
     this.templateColors = [];
@@ -398,10 +401,41 @@ class CertifyApp {
     if (this.state.view === 'editing') {
       this.render();
     } else if (this.state.view === 'review') {
-      if (typeof this.renderReviewView === 'function') {
-        this.renderReviewView();
-      }
+      this.renderReviewScreen();
     }
+  }
+
+  renderReviewScreen() {
+    if (!this.viewReview) return;
+    renderReviewView(this.viewReview, {
+      project: this.state.project,
+      images: this.state.images,
+      onBack: () => this.switchView('editing'),
+      onDownload: () => this.handleDownloadZip()
+    });
+  }
+
+  handleDownloadZip() {
+    const templateImg = this.state.images.get('template');
+    if (!templateImg) return;
+    const rows = this.state.project.recipients.rows;
+    if (rows.length === 0) {
+      alert('Add at least one recipient before exporting.');
+      return;
+    }
+    const nameCol = detectNameColumn(this.state.project.recipients.columns);
+    const cleanTitle = (this.state.project.title || 'certify-batch').toLowerCase().replace(/[^a-z0-9_-]+/g, '-') || 'certificates';
+    const zipFileName = `${cleanTitle}.zip`;
+
+    this.zipExporter.exportZip({
+      templateImg,
+      layers: this.state.project.layers,
+      images: this.state.images,
+      rows,
+      nameColumn: nameCol,
+      zipFileName,
+      onError: (err) => alert(err)
+    });
   }
 
   updateHeader() {
